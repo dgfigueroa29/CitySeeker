@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CitySeeker</string>
+    <string name="all_cities">All Cities</string>
+    <string name="fav_cities">Favorite Cities</string>
+    <string name="search_cities">Search City</string>
+    <string name="search">Search</string>
+    <string name="details">City Details</string>
+    <string name="favorite_selected">Favorite Selected</string>
+    <string name="favorite_unselected">Favorite Unselected</string>
 </resources>
