@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
     //UI
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -95,10 +96,12 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.serialization)
-    implementation(libs.ktor.client.serialization.json)
+    implementation(libs.ktor.client.serialization.gson)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.realm.base)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     //Testing
     testImplementation(libs.junit)
@@ -106,6 +109,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
     //Debugging
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

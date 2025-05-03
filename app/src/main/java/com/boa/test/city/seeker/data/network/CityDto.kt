@@ -1,6 +1,7 @@
 package com.boa.test.city.seeker.data.network
 
 import kotlinx.serialization.Serializable
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data Transfer Object (DTO) representing a city.
@@ -18,6 +19,7 @@ import kotlinx.serialization.Serializable
 data class CityDto(
     val country: String,
     val name: String,
-    val _id: Int,
+    @SerializedName("_id")
+    val id: Int,
     val coord: CoordinatesDto
 )
