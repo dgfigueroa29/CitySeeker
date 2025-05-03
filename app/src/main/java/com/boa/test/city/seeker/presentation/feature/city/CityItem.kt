@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
@@ -30,10 +30,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
+import com.boa.test.city.seeker.presentation.navigation.Screen
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryDark
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryLight
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryOff
 
+/**
+ * A composable function that displays a single city item in a list.
+ *
+ * This function renders a card representing a city, including its name, country,
+ * favorite status (with a star icon), and a details button. Clicking on the card
+ * or the details button navigates the user to the city detail screen.
+ * Clicking on the star icon toggles the city's favorite status.
+ *
+ * @param city The [CityModel] containing the data for the city to be displayed.
+ * @param onToggleFavorite A lambda function that is called when the user toggles
+ */
 @Composable
 fun CityItem(
     city: CityModel,
@@ -43,7 +55,7 @@ fun CityItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { navController.navigate("city_detail/${city.id}") },
+            .clickable { navController.navigate("${Screen.CITY}/${city.id}") },
         elevation = CardDefaults.elevatedCardElevation(8.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -64,9 +76,9 @@ fun CityItem(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = city.country,
+                    text = "Lat: ${city.latitude}, Long: ${city.longitude}",
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = PrimaryOff
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))
@@ -85,9 +97,9 @@ fun CityItem(
                     )
                 }
             }
-            IconButton(onClick = { navController.navigate("city_detail/${city.id}") }) {
+            IconButton(onClick = { navController.navigate("${Screen.CITY}/${city.id}") }) {
                 Icon(
-                    imageVector = Icons.Default.ArrowForward,
+                    imageVector = Icons.Default.LocationOn,
                     contentDescription = stringResource(R.string.details),
                     tint = PrimaryOff
                 )

@@ -18,6 +18,28 @@ import androidx.compose.ui.unit.dp
 import com.boa.test.city.seeker.R
 import io.ktor.websocket.Frame.Text
 
+/**
+ * A composable function that renders a search bar with a text field and a search icon.
+ *
+ * This search bar allows users to input text, which is then propagated to the `onSearchQueryChanged` callback.
+ * It features a search icon, a placeholder label, and a styled appearance with a rounded shape and background color.
+ *
+ * @param searchQuery The current text in the search bar.
+ * @param onSearchQueryChanged A callback function invoked when the search query changes.
+ *                             It receives the new search query as a `String`.
+ *
+ * Example Usage:
+ * ```
+ * var mySearchQuery by remember { mutableStateOf("") }
+ * SearchBar(
+ *     searchQuery = mySearchQuery,
+ *     onSearchQueryChanged = { newQuery ->
+ *         mySearchQuery = newQuery
+ *         // Perform search or other actions with the new query here.
+ *     }
+ * )
+ * ```
+ */
 @Composable
 fun SearchBar(
     searchQuery: String,

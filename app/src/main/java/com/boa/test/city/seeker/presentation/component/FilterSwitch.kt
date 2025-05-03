@@ -12,6 +12,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.boa.test.city.seeker.R
 
+/**
+ * A composable function that displays a switch to toggle between showing all cities and favorite cities.
+ *
+ * @param showFavorites A boolean indicating whether to show only favorite cities (true) or all cities (false).
+ * @param onShowFavoritesChanged A callback function that is invoked when the switch state changes.
+ *                                It provides the new boolean value indicating whether to show favorites.
+ *                                This should be used to update the state of the parent composable.
+ */
 @Composable
 fun FilterSwitch(
     showFavorites: Boolean,
