@@ -1,10 +1,10 @@
-package com.boa.test.city.seeker.data.dao
+package com.boa.test.city.seeker.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.boa.test.city.seeker.data.entity.CityEntity
+import com.boa.test.city.seeker.data.local.entity.CityEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

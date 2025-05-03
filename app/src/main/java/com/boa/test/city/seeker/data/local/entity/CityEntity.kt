@@ -1,4 +1,4 @@
-package com.boa.test.city.seeker.data.entity
+package com.boa.test.city.seeker.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -20,7 +20,7 @@ data class CityEntity(
     val longitude: Double
 ) {
     fun getTitle():String {
-        return "$country - $name"
+        return "$name, $country"
     }
 
     fun getSubtitle():String {
