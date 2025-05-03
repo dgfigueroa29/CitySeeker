@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.detekt)
-    kotlin("plugin.serialization") version (libs.versions.kotlin)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -96,9 +96,10 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.serialization)
-    implementation(libs.ktor.client.serialization.gson)
+    implementation(libs.ktor.client.serialization.json)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.android.gson)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
