@@ -1,13 +1,8 @@
 package com.boa.test.city.seeker.presentation.feature.city.list
 
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import kotlinx.serialization.Serializable
-
-
 /**
  * Object used for a type safe destination to a List route
  */
-@Serializable
 object ListDestination
 
 /**

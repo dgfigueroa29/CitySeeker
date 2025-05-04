@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -18,8 +19,12 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "CITIES_URL",
+            "\"https://gist.githubusercontent.com/hernan-uala/dce8843a8edbe0b0018b32e137bc2b3a/raw/0996accf70cb0ca0e16f9a99e0ee185fafca7af1/cities.json\""
+        )
     }
 
     buildTypes {
@@ -93,12 +98,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     //Data
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.serialization)
-    implementation(libs.ktor.client.serialization.json)
-    implementation(libs.ktor.client.logging)
-    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.retrofit.gson)
+    implementation(libs.retrofit.android)
+    implementation(libs.okhttp.android)
+    implementation(libs.okhttp.interceptor)
     implementation(libs.android.gson)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

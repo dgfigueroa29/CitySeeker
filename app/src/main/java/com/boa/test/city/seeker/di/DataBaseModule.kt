@@ -17,6 +17,7 @@ class DataBaseModule {
     @Provides
     @Singleton
     fun providesDatabase(@ApplicationContext context: Context): CityDatabase {
-        return Room.databaseBuilder(context, CityDatabase::class.java, DB_NAME).build()
+        return Room.databaseBuilder(context, CityDatabase::class.java, DB_NAME)
+            .fallbackToDestructiveMigration(false).build()
     }
 }

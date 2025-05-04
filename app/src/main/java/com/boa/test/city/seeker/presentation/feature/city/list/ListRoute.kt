@@ -1,10 +1,8 @@
 package com.boa.test.city.seeker.presentation.feature.city.list
 
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-
-
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 
