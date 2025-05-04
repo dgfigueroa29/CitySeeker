@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.boa.test.city.seeker.data.local.entity.CityEntity
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CityDao {
@@ -16,7 +15,7 @@ interface CityDao {
 
     @Query("SELECT * FROM cities WHERE name MATCH :query ORDER BY name, country LIMIT 100")
     // LIKE : query || '%' COLLATE NOCASE
-    fun searchCities(query: String): Flow<List<CityEntity>>
+    fun searchCities(query: String): List<CityEntity>
 
     @Query("SELECT * FROM cities ORDER BY name, country")
     fun getAll(): List<CityEntity>
