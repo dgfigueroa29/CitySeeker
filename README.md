@@ -40,3 +40,12 @@ curl --location --globoff 'https://gist.githubusercontent.com/hernan-uala/dce884
 ]
 ```
 
+## Next Steps
+
+- Offline-first
+- Analytics & Monitoring
+- Benchmarking
+- Accessibility audit
+- Security audit
+- Performance audit
+- Publish to Play Store

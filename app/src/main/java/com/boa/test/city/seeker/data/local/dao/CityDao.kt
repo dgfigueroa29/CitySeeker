@@ -14,10 +14,11 @@ interface CityDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(cities: List<CityEntity>)
 
-    @Query("SELECT * FROM cities WHERE name MATCH :query") // LIKE : query || '%' COLLATE NOCASE
+    @Query("SELECT * FROM cities WHERE name MATCH :query ORDER BY name, country LIMIT 100")
+    // LIKE : query || '%' COLLATE NOCASE
     fun searchCities(query: String): Flow<List<CityEntity>>
 
-    @Query("SELECT * FROM cities")
+    @Query("SELECT * FROM cities ORDER BY name, country")
     fun getAll(): List<CityEntity>
 
     @Query("DELETE FROM cities")

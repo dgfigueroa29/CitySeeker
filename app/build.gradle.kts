@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.lottie.android)
 
     //Data
     implementation(libs.retrofit.gson)

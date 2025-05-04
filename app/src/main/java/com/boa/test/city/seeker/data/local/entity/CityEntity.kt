@@ -20,7 +20,7 @@ import com.boa.test.city.seeker.data.local.CityDatabase.Companion.TABLE_CITIES
 data class CityEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")
-    val id: Int = 0,
+    val id: Long = 0L,
     @ColumnInfo(name = COLUMN_NAME)
     val name: String,
     @ColumnInfo(name = COLUMN_COUNTRY)

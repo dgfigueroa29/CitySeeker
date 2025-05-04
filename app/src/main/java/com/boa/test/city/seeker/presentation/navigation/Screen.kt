@@ -9,7 +9,7 @@ package com.boa.test.city.seeker.presentation.navigation
  * @property endpoint The unique string identifier for this screen.
  */
 enum class Screen(val endpoint: String) {
-    HOME("home"),
+    LIST("list"),
     MAP("map"),
     CITY("city"),
 }

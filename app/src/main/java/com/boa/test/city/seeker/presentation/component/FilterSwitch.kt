@@ -15,14 +15,14 @@ import com.boa.test.city.seeker.R
 /**
  * A composable function that displays a switch to toggle between showing all cities and favorite cities.
  *
- * @param showFavorites A boolean indicating whether to show only favorite cities (true) or all cities (false).
+ * @param isShowingFavorites A boolean indicating whether to show only favorite cities (true) or all cities (false).
  * @param onShowFavoritesChanged A callback function that is invoked when the switch state changes.
  *                                It provides the new boolean value indicating whether to show favorites.
  *                                This should be used to update the state of the parent composable.
  */
 @Composable
 fun FilterSwitch(
-    showFavorites: Boolean,
+    isShowingFavorites: Boolean,
     onShowFavoritesChanged: (Boolean) -> Unit
 ) {
     Row(
@@ -33,7 +33,7 @@ fun FilterSwitch(
             modifier = Modifier.padding(start = 8.dp)
         )
         Switch(
-            checked = showFavorites,
+            checked = isShowingFavorites,
             onCheckedChange = onShowFavoritesChanged,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
@@ -48,7 +48,7 @@ fun FilterSwitch(
 @Composable
 fun FilterAllSwitchPreview() {
     FilterSwitch(
-        showFavorites = false,
+        isShowingFavorites = false,
         onShowFavoritesChanged = {}
     )
 }
@@ -57,7 +57,7 @@ fun FilterAllSwitchPreview() {
 @Composable
 fun FilterSwitchPreview() {
     FilterSwitch(
-        showFavorites = true,
+        isShowingFavorites = true,
         onShowFavoritesChanged = {}
     )
 }
