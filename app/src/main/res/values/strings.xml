@@ -8,4 +8,5 @@
     <string name="favorite_selected">Favorite Selected</string>
     <string name="favorite_unselected">Favorite Unselected</string>
     <string name="clear_search">Clear Search</string>
+    <string name="retry">Retry</string>
 </resources>

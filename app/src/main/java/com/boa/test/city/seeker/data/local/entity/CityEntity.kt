@@ -16,7 +16,6 @@ import com.boa.test.city.seeker.data.local.CityDatabase.Companion.TABLE_CITIES
         Index(value = ["country"], name = INDEX_COUNTRY),
     ]
 )
-//@Fts4
 data class CityEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")
@@ -29,12 +28,4 @@ data class CityEntity(
     val latitude: Double,
     @ColumnInfo(name = "longitude")
     val longitude: Double
-) {
-    fun getTitle(): String {
-        return "$name, $country"
-    }
-
-    fun getSubtitle(): String {
-        return "Lat: $latitude, Lon: $longitude"
-    }
-}
+)

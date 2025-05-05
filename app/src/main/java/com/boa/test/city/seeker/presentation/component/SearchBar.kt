@@ -46,7 +46,9 @@ fun SearchBar(
     OutlinedTextField(
         value = searchQuery,
         singleLine = true,
-        onValueChange = onSearchQueryChanged,
+        enabled = true,
+        maxLines = 1,
+        onValueChange = { onSearchQueryChanged(it) },
         label = { Text(text = stringResource(R.string.search_cities)) },
         leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))

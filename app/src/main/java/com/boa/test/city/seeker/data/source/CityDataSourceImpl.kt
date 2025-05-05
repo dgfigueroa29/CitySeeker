@@ -4,6 +4,7 @@ import android.content.Context
 import com.boa.test.city.seeker.common.FILE_CITY
 import com.boa.test.city.seeker.data.local.CityDatabase
 import com.boa.test.city.seeker.data.local.entity.CityEntity
+import com.boa.test.city.seeker.data.mapper.CityMapper
 import com.boa.test.city.seeker.data.network.CityApi
 import com.google.gson.stream.JsonReader
 import timber.log.Timber
@@ -17,29 +18,48 @@ class CityDataSourceImpl @Inject constructor(
 ) : CityDataSource {
     override suspend fun getAllCities(): List<CityEntity> {
         var cities = cityDatabase.cityDao().getAll()
-        val response = cityApi.getAllCities()
+        val cacheDir = context.cacheDir
+        var tempFile = File(cacheDir, FILE_CITY)
+        var needDownload = false
+
+        if (!tempFile.exists()) {
+            tempFile = File(cacheDir, "temp_$FILE_CITY")
+            if (!tempFile.exists()) {
+                tempFile.createNewFile()
+                needDownload = true
+            }
+        }
 
         return try {
-            if (response.isSuccessful) {
-                response.body()?.let { body ->
-                    body.use {
-                        try {
-                            val tempFile = File(context.cacheDir, "temp_$FILE_CITY")
-                            it.byteStream().use { input ->
-                                tempFile.outputStream().use { output ->
-                                    input.copyTo(output)
+            if (needDownload && cities.isEmpty()) {
+                val response = cityApi.getAllCities()
+                if (response.isSuccessful) {
+                    response.body()?.let { body ->
+                        body.use {
+                            try {
+                                it.byteStream().use { input ->
+                                    tempFile.outputStream().use { output ->
+                                        input.copyTo(output)
+                                    }
                                 }
+                                processFile(tempFile)
+                                cityDatabase.cityDao().getAll()
+                            } catch (e: Exception) {
+                                Timber.e("Error processing cities: ${e.stackTraceToString()}")
+                                cities
                             }
-                            processFile(tempFile)
-                            cityDatabase.cityDao().getAll()
-                        } catch (e: Exception) {
-                            Timber.e("Error processing cities: ${e.stackTraceToString()}")
-                            cities
                         }
-                    }
-                } ?: cityDatabase.cityDao().getAll()
+                    } ?: cities
+                } else {
+                    cities
+                }
             } else {
-                cities
+                if (cities.isEmpty()) {
+                    processFile(tempFile)
+                    cityDatabase.cityDao().getAll()
+                } else {
+                    cities
+                }
             }
         } catch (e: Exception) {
             Timber.e("Error downloading cities: ${e.stackTraceToString()}")
@@ -47,26 +67,47 @@ class CityDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun searchCities(query: String): List<CityEntity> =
-        cityDatabase.cityDao().searchCities(query)
+    override suspend fun searchCities(query: String): List<CityEntity> {
+        val cities = cityDatabase.cityDao().searchCities(query)
+        return cities
+    }
+
+    override suspend fun pagingSource(query: String, trie: CityTrie): CityPagingSource {
+        var cities = trie.search(query)
+        cities = if (query.isBlank() && cities.isEmpty()) {
+            CityMapper().mapAll(getAllCities())
+        } else {
+            CityMapper().mapAll(searchCities(query))
+        }
+
+        return CityPagingSource(cities)
+    }
 
     private suspend fun processFile(file: File) {
-        val reader = JsonReader(file.reader())
+        try {
+            val reader = JsonReader(file.reader())
 
-        reader.use {
-            reader.beginArray()
-            val batch = mutableListOf<CityEntity>()
-            while (reader.hasNext()) {
-                val city = parseCity(reader)
-                batch.add(city)
-                if (batch.size >= 10000) {
+            reader.use {
+                try {
+                    reader.beginArray()
+                    val batch = mutableListOf<CityEntity>()
+                    while (reader.hasNext()) {
+                        val city = parseCity(reader)
+                        batch.add(city)
+                        if (batch.size >= 10000) {
+                            insertBatch(batch)
+                            batch.clear()
+                        }
+                    }
+
                     insertBatch(batch)
-                    batch.clear()
+                    reader.endArray()
+                } catch (e: Exception) {
+                    Timber.e("Error processFile: ${e.stackTraceToString()}")
                 }
             }
-
-            insertBatch(batch)
-            reader.endArray()
+        } catch (e: Exception) {
+            Timber.e("Error readFile: ${e.stackTraceToString()}")
         }
     }
 

@@ -15,7 +15,7 @@ object ListDestination
  * UI State that represents ListScreen
  **/
 data class ListState(
-    private val _loadingState: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    private val _loadingState: MutableStateFlow<Boolean> = MutableStateFlow(true),
     val loadingState: StateFlow<Boolean> = _loadingState.asStateFlow(),
     private val _favoriteFilterState: MutableStateFlow<Boolean> = MutableStateFlow(false),
     val favoriteFilterState: StateFlow<Boolean> = _favoriteFilterState.asStateFlow(),
@@ -23,13 +23,16 @@ data class ListState(
     val textFilterState: StateFlow<String> = _textFilterState.asStateFlow(),
     private val _errorState: MutableStateFlow<String> = MutableStateFlow(""),
     val errorState: StateFlow<String> = _errorState.asStateFlow(),
-    private val _locationList: MutableStateFlow<PagingData<CityModel>> = MutableStateFlow(
+    private val _cityList: MutableStateFlow<PagingData<CityModel>> = MutableStateFlow(
         PagingData.empty()
     ),
-    val locationList: StateFlow<PagingData<CityModel>> = _locationList.asStateFlow()
+    val cityList: StateFlow<PagingData<CityModel>> = _cityList.asStateFlow(),
+    private val _listAction: MutableStateFlow<ListAction> = MutableStateFlow(ListAction.OnClick),
+    private val _queryState: MutableStateFlow<String> = MutableStateFlow(""),
+    val queryState: StateFlow<String> = _errorState.asStateFlow()
 ) {
     fun setList(data: PagingData<CityModel>) {
-        this._locationList.value = data
+        this._cityList.value = data
     }
 
     fun setLoading(loading: Boolean) {
@@ -46,6 +49,10 @@ data class ListState(
 
     fun setError(error: String) {
         this._errorState.value = error
+    }
+
+    fun setQuery(query: String) {
+        this._queryState.value = query
     }
 }
 

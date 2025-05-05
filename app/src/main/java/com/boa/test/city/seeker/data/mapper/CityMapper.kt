@@ -23,13 +23,3 @@ fun CityEntity.toDomainModel(): CityModel {
         longitude = longitude
     )
 }
-
-fun CityModel.toEntity(): CityEntity {
-    return CityEntity(
-        id = id,
-        name = name,
-        country = country,
-        latitude = latitude,
-        longitude = longitude
-    )
-}

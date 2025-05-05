@@ -42,7 +42,7 @@ object ApplicationModule {
 
         if (BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor()
-            logging.level = HttpLoggingInterceptor.Level.BODY
+            logging.level = HttpLoggingInterceptor.Level.BASIC
             builder.addInterceptor(logging)
         }
 
@@ -54,8 +54,9 @@ object ApplicationModule {
             chain.proceed(request)
         }
 
-        // Cache de 10MB
-        val cache = Cache(File(context.cacheDir, FILE_CITY), CACHE_SIZE.toLong())
+        // Cache de 20MB
+        val cacheDir = context.cacheDir
+        val cache = Cache(File(cacheDir, FILE_CITY), CACHE_SIZE.toLong())
         builder.addInterceptor(gzipInterceptor) // Reduce size in 70% approx
         builder.cache(cache)
         return builder.build()
@@ -69,7 +70,6 @@ object ApplicationModule {
         Retrofit
             .Builder()
             .baseUrl(BuildConfig.CITIES_URL)
-            //.addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .client(client)
             .build()
 
