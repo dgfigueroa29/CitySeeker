@@ -2,6 +2,7 @@ package com.boa.test.city.seeker.presentation.feature.city.list
 
 import androidx.paging.PagingData
 import com.boa.test.city.seeker.domain.model.CityModel
+import com.boa.test.city.seeker.presentation.ui.previewCities
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,16 +44,16 @@ data class ListState(
         this._favoriteFilterState.value = favoriteFilter
     }
 
-    fun setFavoriteFilter(textFilter: String) {
-        this._textFilterState.value = textFilter
-    }
-
     fun setError(error: String) {
         this._errorState.value = error
     }
 
     fun setQuery(query: String) {
         this._queryState.value = query
+    }
+
+    fun previewList() {
+        this._cityList.value = PagingData.from(previewCities())
     }
 }
 

@@ -6,6 +6,7 @@ import com.boa.test.city.seeker.data.local.CityDatabase
 import com.boa.test.city.seeker.data.local.entity.CityEntity
 import com.boa.test.city.seeker.data.mapper.CityMapper
 import com.boa.test.city.seeker.data.network.CityApi
+import com.boa.test.city.seeker.domain.util.removeSpecialCharacters
 import com.google.gson.stream.JsonReader
 import timber.log.Timber
 import java.io.File
@@ -68,7 +69,7 @@ class CityDataSourceImpl @Inject constructor(
     }
 
     override suspend fun searchCities(query: String): List<CityEntity> {
-        val cities = cityDatabase.cityDao().searchCities(query)
+        val cities = cityDatabase.cityDao().searchCities(query).distinct()
         return cities
     }
 
@@ -93,7 +94,9 @@ class CityDataSourceImpl @Inject constructor(
                     val batch = mutableListOf<CityEntity>()
                     while (reader.hasNext()) {
                         val city = parseCity(reader)
-                        batch.add(city)
+                        if (city.name.isNotBlank()) {
+                            batch.add(city)
+                        }
                         if (batch.size >= 10000) {
                             insertBatch(batch)
                             batch.clear()
@@ -122,8 +125,8 @@ class CityDataSourceImpl @Inject constructor(
         while (reader.hasNext()) {
             when (reader.nextName()) {
                 "_id" -> id = reader.nextLong()
-                "name" -> name = reader.nextString()
-                "country" -> country = reader.nextString()
+                "name" -> name = reader.nextString().removeSpecialCharacters()
+                "country" -> country = reader.nextString().removeSpecialCharacters()
                 "coord" -> {
                     reader.beginObject()
                     while (reader.hasNext()) {

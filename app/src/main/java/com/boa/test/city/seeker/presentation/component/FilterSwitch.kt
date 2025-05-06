@@ -22,10 +22,12 @@ import com.boa.test.city.seeker.R
  */
 @Composable
 fun FilterSwitch(
+    modifier: Modifier = Modifier,
     isShowingFavorites: Boolean,
     onShowFavoritesChanged: (Boolean) -> Unit
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
