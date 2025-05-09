@@ -10,6 +10,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,8 +20,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -31,18 +32,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +49,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
@@ -60,7 +59,6 @@ import com.boa.test.city.seeker.presentation.component.LoadingIndicator
 import com.boa.test.city.seeker.presentation.component.OfflineIndicator
 import com.boa.test.city.seeker.presentation.component.SearchBar
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
-import kotlinx.coroutines.delay
 
 @Composable
 fun ListScreen(
@@ -98,7 +96,6 @@ fun ListScreen(
     }
 }
 
-@SuppressLint("FrequentlyChangedStateReadInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListStateful(
@@ -114,54 +111,27 @@ fun ListStateful(
 
     LaunchedEffect(searchQuery) {
         if (searchQuery.isNotEmpty()) {
-            delay(300)
+            //delay(300)
             onSearchQueryChanged(searchQuery)
         }
     }
 
     val listState = rememberLazyListState()
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.weight(0.5f)
-                            .padding(horizontal = 16.dp)
-                    )
-                    FilterSwitch(
-                        isShowingFavorites = isShowingFavorites,
-                        onShowFavoritesChanged = onShowFavoritesChanged,
-                        modifier = Modifier.weight(0.5f)
-                            .padding(horizontal = 8.dp)
-                    )
-                }
-                SearchBar(
-                    searchQuery = searchQuery,
-                    onSearchQueryChanged = { query ->
-                        searchQuery = query
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-                AnimatedVisibility(
-                    visible = cities.itemCount == 0 && searchQuery.isNotEmpty(),
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically()
-                ) {
-                    NoResultsFound()
+                ListHeader(
+                    isShowingFavorites,
+                    onShowFavoritesChanged,
+                    searchQuery,
+                    cities
+                ) { query ->
+                    searchQuery = query
                 }
 
                 LazyColumn(
@@ -177,30 +147,78 @@ fun ListStateful(
                             onCityClick = {
                                 showDetailDialog = true
                             },
-                            onFavoriteClick = {  }
+                            onFavoriteClick = { }
                         )
                     }
                 }
             }
 
-            AnimatedVisibility(
-                visible = !listState.isScrollInProgress && listState.firstVisibleItemIndex > 0,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                FloatingActionButton(
-                    onClick = { }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.back_to_top),
-                    )
-                }
-            }
+            ListFooter(listState)
         }
+    }
+}
+
+@Composable
+@SuppressLint("FrequentlyChangedStateReadInComposition")
+private fun BoxScope.ListFooter(listState: LazyListState) {
+    AnimatedVisibility(
+        visible = !listState.isScrollInProgress && listState.firstVisibleItemIndex > 0,
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(16.dp),
+        enter = scaleIn() + fadeIn(),
+        exit = scaleOut() + fadeOut()
+    ) {
+        FloatingActionButton(
+            onClick = { }
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowUp,
+                contentDescription = stringResource(R.string.back_to_top),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ListHeader(
+    isShowingFavorites: Boolean,
+    onShowFavoritesChanged: (Boolean) -> Unit,
+    searchQuery: String,
+    cities: LazyPagingItems<CityModel>,
+    onSearchQueryChanged: (String) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .weight(0.5f)
+                .padding(horizontal = 16.dp)
+        )
+        FilterSwitch(
+            isShowingFavorites = isShowingFavorites,
+            onShowFavoritesChanged = onShowFavoritesChanged,
+            modifier = Modifier
+                .weight(0.5f)
+                .padding(horizontal = 8.dp)
+        )
+    }
+    SearchBar(
+        searchQuery = searchQuery,
+        onSearchQueryChanged = onSearchQueryChanged,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+    AnimatedVisibility(
+        visible = cities.itemCount == 0 && searchQuery.isNotEmpty(),
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically()
+    ) {
+        NoResultsFound()
     }
 }
 
@@ -231,6 +249,7 @@ fun NoResultsFound() {
 
 @Composable
 @Preview(name = "List", showSystemUi = true, showBackground = true)
+@Suppress("UnusedPrivateMember")
 private fun ListScreenPreview(
     @PreviewParameter(ListStatePreviewParameterProvider::class)
     state: ListState
@@ -246,6 +265,7 @@ private fun ListScreenPreview(
 
 @Composable
 @Preview(name = "ListEmpty", showSystemUi = true, showBackground = true)
+@Suppress("UnusedPrivateMember")
 private fun ListEmptyScreenPreview(
     @PreviewParameter(ListStatePreviewParameterProvider::class)
     state: ListState
@@ -270,6 +290,7 @@ class ListStatePreviewParameterProvider : PreviewParameterProvider<ListState> {
 
 @Preview(name = "EmptyState", showSystemUi = true, showBackground = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun EmptyState() {
     NoResultsFound()
 }

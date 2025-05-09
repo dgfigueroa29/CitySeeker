@@ -2,11 +2,6 @@ package com.boa.test.city.seeker.presentation.feature.city.detail
 
 
 /**
- * Object used for a type safe destination to a Detail route
- */
-object DetailDestination
-
-/**
  * UI State that represents DetailScreen
  **/
 class DetailState

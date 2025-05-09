@@ -8,13 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Object used for a type safe destination to a List route
- */
-object ListDestination
-
-/**
  * UI State that represents ListScreen
  **/
+@Suppress("ConstructorParameterNaming")
 data class ListState(
     private val _loadingState: MutableStateFlow<Boolean> = MutableStateFlow(true),
     val loadingState: StateFlow<Boolean> = _loadingState.asStateFlow(),

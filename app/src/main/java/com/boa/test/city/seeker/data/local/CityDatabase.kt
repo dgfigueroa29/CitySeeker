@@ -26,6 +26,7 @@ abstract class CityDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: CityDatabase? = null
 
+        @Suppress("unused")
         fun getInstance(context: Context): CityDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

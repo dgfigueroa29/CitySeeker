@@ -19,7 +19,10 @@ class CityTrie {
         var current = root
         word.forEach { char ->
             current = current.children.getOrPut(char) { Node() }
-            current.cities.add(city)
+
+            if (current.cities.contains(city).not()) {
+                current.cities.add(city)
+            }
         }
     }
 

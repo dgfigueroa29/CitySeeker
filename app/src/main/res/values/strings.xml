@@ -4,11 +4,10 @@
     <string name="fav_cities">Favorite</string>
     <string name="search_cities">Search Cities…</string>
     <string name="search">Search</string>
-    <string name="details">City Details</string>
     <string name="favorite_selected">Remove from favorites</string>
     <string name="favorite_unselected">Add to favorites</string>
     <string name="clear_search">Clear Search</string>
-    <string name="retry">Retry</string>
     <string name="no_results">There are no results for the applied filters</string>
     <string name="back_to_top">Back to top</string>
+    <string name="back">Go back</string>
 </resources>

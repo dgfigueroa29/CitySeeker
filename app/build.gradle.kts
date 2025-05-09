@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,13 +11,29 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+val isRunningLocal =
+    System.getenv("CI")
+        .isNullOrEmpty()
+val localProperties = if (isRunningLocal) {
+    File(rootDir, "local.properties").inputStream().use {
+        Properties().apply { load(it) }
+    }
+} else {
+    Properties()
+}
+
+val mapboxToken: String =
+    System.getenv("MAPBOX_TOKEN")
+        ?.toString() ?: localProperties.getProperty("mapboxToken")
+    ?: ""
+
 android {
     namespace = "com.boa.test.city.seeker"
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.boa.test.city.seeker"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
@@ -24,6 +42,11 @@ android {
             "String",
             "CITIES_URL",
             "\"https://gist.githubusercontent.com/hernan-uala/dce8843a8edbe0b0018b32e137bc2b3a/raw/0996accf70cb0ca0e16f9a99e0ee185fafca7af1/\""
+        )
+        buildConfigField(
+            "String",
+            "MAPBOX_TOKEN",
+            "\"$mapboxToken\""
         )
     }
 
@@ -97,8 +120,11 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.lottie.android)
+    implementation(libs.mapbox)
+    implementation(libs.mapbox.compose)
 
     //Data
+    implementation(libs.datastore.android)
     implementation(libs.retrofit.gson)
     implementation(libs.retrofit.android)
     implementation(libs.okhttp.android)

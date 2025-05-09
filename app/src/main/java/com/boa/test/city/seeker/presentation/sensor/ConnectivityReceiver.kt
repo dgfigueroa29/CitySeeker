@@ -8,11 +8,12 @@ import android.net.NetworkCapabilities
 
 /**
  * ConnectivityReceiver is a BroadcastReceiver that listens for network connectivity changes.
- * It utilizes the ConnectivityManager to determine if the device is currently connected to a network
- * with internet access and notifies the provided callback accordingly.
+ * It utilizes the ConnectivityManager to determine if the device is currently connected to a
+ * network with internet access and notifies the provided callback accordingly.
  *
- * @property onNetworkChange A lambda function that is invoked whenever the network connectivity status changes.
- *                           It receives a Boolean indicating whether the device is connected to the internet (true) or not (false).
+ * @property onNetworkChange A lambda function that is invoked whenever the network connectivity
+ * status changes. It receives a Boolean indicating whether the device is connected to the
+ * internet (true) or not (false).
  */
 class ConnectivityReceiver(private val onNetworkChange: (Boolean) -> Unit) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

@@ -14,12 +14,3 @@ class CityMapper : BaseMapper<CityEntity, CityModel>() {
     )
 }
 
-fun CityEntity.toDomainModel(): CityModel {
-    return CityModel(
-        id = id,
-        name = name,
-        country = country,
-        latitude = latitude,
-        longitude = longitude
-    )
-}

@@ -35,7 +35,8 @@ fun ConnectivityStatus(onConnectionChanged: (Boolean) -> Unit) {
     }
 
     DisposableEffect(Unit) {
-        val intentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        @Suppress("DEPRECATION") val intentFilter =
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         context.registerReceiver(connectivityReceiver, intentFilter)
 
         onDispose {

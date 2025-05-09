@@ -11,5 +11,5 @@ package com.boa.test.city.seeker.presentation.navigation
 enum class Screen(val endpoint: String) {
     LIST("list"),
     MAP("map"),
-    CITY("city"),
+    MAIN("main"),
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boa.test.city.seeker.domain.usecase.SearchCityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,6 +25,7 @@ class ListViewModel @Inject constructor(
         }
     }
 
+    @OptIn(FlowPreview::class)
     fun getCities(textFilter: String) {
         refreshLoading(textFilter.isEmpty())
         //Force loading at the beginning
