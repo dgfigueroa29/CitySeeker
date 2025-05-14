@@ -18,7 +18,17 @@ data class CityModel(
     val longitude: Double = 0.0,
     var isFavorite: Boolean = false
 ) {
+    /**
+     * Returns a formatted string combining the city name and country.
+     *
+     * @return A string in the format "Name, Country".
+     */
     fun getTitle(): String = "$name, $country"
 
+    /**
+     * Generates a subtitle string representing the geographical coordinates of the city.
+     *
+     * @return A string in the format "Lat: [latitude], Long: [longitude]".
+     */
     fun getSubtitle(): String = "Lat: $latitude, Long: $longitude"
 }
