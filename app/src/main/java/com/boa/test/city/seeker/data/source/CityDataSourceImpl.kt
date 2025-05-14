@@ -114,13 +114,13 @@ class CityDataSourceImpl @Inject constructor(
     /**
      * Creates a [CityPagingSource] for the given query.
      *
-     * This function first attempts to search the provided [Trie] for cities matching the query.
+     * This function first attempts to search the provided Trie for cities matching the query.
      * If the query is blank and the trie search returns no results, it fetches all cities.
      * Otherwise, it performs a database search for cities matching the query.
      * The results are then mapped to the domain model and used to create the [CityPagingSource].
      *
      * @param query The search query.
-     * @param trie The [Trie] to use for initial searching.
+     * @param trie The Trie to use for initial searching.
      * @return A [CityPagingSource] containing the search results.
      * @throws Exception If an error occurs during the process.
      */

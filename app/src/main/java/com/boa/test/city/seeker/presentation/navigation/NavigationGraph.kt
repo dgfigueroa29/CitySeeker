@@ -1,5 +1,10 @@
 package com.boa.test.city.seeker.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -20,14 +25,34 @@ fun NavigationGraph(
         navController = navController,
         startDestination = Screen.MAIN.endpoint,
     ) {
-        composable(Screen.MAIN.endpoint) {
-            MainScreen()
+        composable(
+            route = Screen.MAIN.endpoint,
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) }) {
+            MainScreen(navController)
         }
-        composable(Screen.LIST.endpoint) {
-            ListScreen()
+        composable(
+            route = Screen.LIST.endpoint,
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) }) {
+            ListScreen(navController)
         }
-        composable(Screen.MAP.endpoint) {
-            DetailScreen()
+        composable(
+            route = "${Screen.MAP.endpoint}/{cityId}",
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            }) { backStackEntry ->
+            val cityId = backStackEntry.arguments?.getString("cityId") ?: return@composable
+            DetailScreen(navController = navController, cityId = cityId)
         }
     }
 }

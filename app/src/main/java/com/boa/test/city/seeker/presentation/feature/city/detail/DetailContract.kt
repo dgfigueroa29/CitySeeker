@@ -12,5 +12,4 @@ class DetailState
  **/
 
 sealed interface DetailAction {
-    data object OnClick : DetailAction
 }

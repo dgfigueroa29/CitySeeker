@@ -7,37 +7,38 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import com.boa.test.city.seeker.presentation.component.isLandscape
 import com.boa.test.city.seeker.presentation.feature.city.detail.DetailScreen
 import com.boa.test.city.seeker.presentation.feature.city.list.ListScreen
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController? = null) {
     val landscape = isLandscape()
 
     if (landscape) {
-        LandscapeLayout()
+        LandscapeLayout(navController)
     } else {
-        PortraitLayout()
+        PortraitLayout(navController)
     }
 }
 
 @Composable
-fun PortraitLayout() {
+fun PortraitLayout(navController: NavHostController? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
-        ListScreen()
+        ListScreen(navController)
     }
 }
 
 @Composable
-fun LandscapeLayout() {
+fun LandscapeLayout(navController: NavHostController? = null) {
     Row(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
         ) {
-            ListScreen()
+            ListScreen(navController)
         }
 
         Box(
@@ -45,7 +46,7 @@ fun LandscapeLayout() {
                 .weight(1f)
                 .fillMaxHeight()
         ) {
-            DetailScreen()
+            DetailScreen(navController)
         }
     }
 }

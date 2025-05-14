@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.boa.test.city.seeker.domain.usecase.SearchCityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,24 +28,28 @@ class ListViewModel @Inject constructor(
     }
 
     @OptIn(FlowPreview::class)
-    fun getCities(textFilter: String) {
-        refreshLoading(textFilter.isEmpty())
+    private fun getCities(textFilter: String) {
         //Force loading at the beginning
         viewModelScope.launch {
-            searchCityUseCase.invoke(textFilter).collect { resource ->
+            searchCityUseCase.invoke(textFilter).collectLatest { resource ->
                 if (resource.data != null && resource.message.isBlank()) {
                     listState.setList(resource.data)
                     refreshLoading(resource.isLoading)
-                    return@collect
+                    //return@collect
                 }
 
                 if (resource.message.isNotBlank() && resource.data == null) {
                     refreshError(resource.message)
                     refreshLoading(resource.isLoading)
-                    return@collect
+                    //return@collect
                 }
             }
         }
+    }
+
+    fun load() {
+        refreshLoading(true)
+        refreshQuery("")
     }
 
     fun refreshQuery(query: String) {

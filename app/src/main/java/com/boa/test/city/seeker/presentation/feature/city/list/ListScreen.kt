@@ -38,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.boa.test.city.seeker.R
@@ -59,28 +60,31 @@ import com.boa.test.city.seeker.presentation.component.LoadingIndicator
 import com.boa.test.city.seeker.presentation.component.OfflineIndicator
 import com.boa.test.city.seeker.presentation.component.SearchBar
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
+import com.boa.test.city.seeker.presentation.navigation.Screen
+import kotlinx.coroutines.launch
 
 @Composable
 fun ListScreen(
+    navController: NavHostController? = null,
     viewModel: ListViewModel = hiltViewModel()
 ) {
-    val loadingState = viewModel.listState.loadingState.collectAsStateWithLifecycle()
-    val errorState = viewModel.listState.errorState.collectAsStateWithLifecycle()
+    val loadingState = viewModel.listState.loadingState.collectAsState()
+    val errorState = viewModel.listState.errorState.collectAsState()
 
-    //Checking internet connection
+    // Checking internet connection
     ConnectivityStatus { isConnected ->
         viewModel.updateConnectionStatus(isConnected)
     }
 
-    //Show loading indicator while fetching data
+    // Show loading indicator while fetching data
     val isLoading = loadingState.value
     LoadingIndicator(isLoading)
 
     LaunchedEffect(Unit) {
-        viewModel.getCities("")
+        viewModel.load()
     }
 
-    //Display error dialog if needed
+    // Display error dialog if needed
     val isOffline = errorState.value.isNotBlank()
     OfflineIndicator(isOffline)
 
@@ -92,6 +96,9 @@ fun ListScreen(
             },
             onShowFavoritesChanged = {
                 viewModel.refreshFavoriteFilter(it)
+            },
+            onCityClick = {
+                navController?.navigate("${Screen.MAP.endpoint}/${it}")
             })
     }
 }
@@ -101,19 +108,16 @@ fun ListScreen(
 fun ListStateful(
     listState: ListState,
     onSearchQueryChanged: (String) -> Unit,
-    onShowFavoritesChanged: (Boolean) -> Unit
+    onShowFavoritesChanged: (Boolean) -> Unit,
+    onCityClick: (Long) -> Unit
 ) {
     val cities = listState.cityList.collectAsLazyPagingItems()
-    val query by listState.queryState.collectAsStateWithLifecycle()
+    val query by listState.queryState.collectAsState()
     val isShowingFavorites by listState.favoriteFilterState.collectAsState()
-    var showDetailDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf(query) }
 
     LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotEmpty()) {
-            //delay(300)
-            onSearchQueryChanged(searchQuery)
-        }
+        onSearchQueryChanged(searchQuery)
     }
 
     val listState = rememberLazyListState()
@@ -145,7 +149,7 @@ fun ListStateful(
                         CityItem(
                             city = city,
                             onCityClick = {
-                                showDetailDialog = true
+                                onCityClick(city.id)
                             },
                             onFavoriteClick = { }
                         )
@@ -161,6 +165,7 @@ fun ListStateful(
 @Composable
 @SuppressLint("FrequentlyChangedStateReadInComposition")
 private fun BoxScope.ListFooter(listState: LazyListState) {
+    val coroutineScope = rememberCoroutineScope()
     AnimatedVisibility(
         visible = !listState.isScrollInProgress && listState.firstVisibleItemIndex > 0,
         modifier = Modifier
@@ -170,7 +175,12 @@ private fun BoxScope.ListFooter(listState: LazyListState) {
         exit = scaleOut() + fadeOut()
     ) {
         FloatingActionButton(
-            onClick = { }
+            onClick = {
+                coroutineScope.launch {
+                    listState.scrollToItem(0)
+                    listState.animateScrollToItem(0)
+                }
+            }
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowUp,
@@ -259,7 +269,8 @@ private fun ListScreenPreview(
     ListStateful(
         listState = statePreview,
         onSearchQueryChanged = { },
-        onShowFavoritesChanged = { }
+        onShowFavoritesChanged = { },
+        onCityClick = { }
     )
 }
 
@@ -273,7 +284,8 @@ private fun ListEmptyScreenPreview(
     ListStateful(
         listState = state,
         onSearchQueryChanged = { },
-        onShowFavoritesChanged = { }
+        onShowFavoritesChanged = { },
+        onCityClick = { }
     )
 }
 
