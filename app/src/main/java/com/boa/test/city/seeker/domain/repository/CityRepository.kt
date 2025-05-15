@@ -18,7 +18,18 @@ interface CityRepository {
      * @param query The search query string.
      * @return A [Flow] of [PagingData] containing [CityModel] objects that match the query.
      */
-    suspend fun searchCities(query: String): Flow<PagingData<CityModel>>
+    suspend fun searchCitiesAndPaginate(query: String): Flow<PagingData<CityModel>>
+
+    /**
+     * Searches for cities based on a given query.
+     *
+     * This function performs a search for cities whose names match or contain the provided query.
+     * It is a suspended function, meaning it can be called from a coroutine.
+     *
+     * @param query The search query string.
+     * @return A list of [CityModel] objects that match the query.
+     */
+    suspend fun searchCities(query: String): List<CityModel>
 
     /**
      * Retrieves a city by its ID.

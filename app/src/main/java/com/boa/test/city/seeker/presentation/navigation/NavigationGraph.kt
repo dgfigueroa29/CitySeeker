@@ -35,7 +35,9 @@ fun NavigationGraph(
             route = Screen.LIST.endpoint,
             enterTransition = { fadeIn(animationSpec = tween(300)) },
             exitTransition = { fadeOut(animationSpec = tween(300)) }) {
-            ListScreen(navController)
+            ListScreen(onCityClick = {
+                navController.navigate("${Screen.MAP.endpoint}/${it}")
+            })
         }
         composable(
             route = "${Screen.MAP.endpoint}/{cityId}",

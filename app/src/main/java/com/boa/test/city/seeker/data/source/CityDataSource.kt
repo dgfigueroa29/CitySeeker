@@ -1,6 +1,7 @@
 package com.boa.test.city.seeker.data.source
 
 import com.boa.test.city.seeker.data.local.entity.CityEntity
+import com.boa.test.city.seeker.domain.model.CityModel
 
 /**
  * Defines the interface for accessing city data from various sources.
@@ -40,4 +41,18 @@ interface CityDataSource {
      * @return The [CityEntity] with the specified ID, or `null` if no city is found with that ID.
      */
     suspend fun getCityById(id: Long): CityEntity?
+
+    /**
+     * Maps cities based on a query using a trie data structure.
+     *
+     * This function is typically used for suggesting cities based on a partial
+     * or full query string by leveraging the efficient searching capabilities
+     * of a trie.
+     *
+     * @param query The search query string used to find matching cities.
+     * @param trie The [CityTrie] data structure used for efficient city lookups.
+     * @return A list of [CityModel] objects that match the query, potentially
+     *         representing suggestions or exact matches.
+     */
+    suspend fun mapCities(query: String, trie: CityTrie): List<CityModel>
 }

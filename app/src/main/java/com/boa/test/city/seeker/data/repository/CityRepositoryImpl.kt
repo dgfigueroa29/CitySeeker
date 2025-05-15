@@ -56,7 +56,7 @@ class CityRepositoryImpl(
      * @return A [Flow] of [PagingData] containing [CityModel] objects that match the query.
      * Returns an empty PagingData flow in case of an error.
      */
-    override suspend fun searchCities(query: String): Flow<PagingData<CityModel>> {
+    override suspend fun searchCitiesAndPaginate(query: String): Flow<PagingData<CityModel>> {
         try {
             val pagingSource =
                 cityDataSource.pagingSource(query, trie)
@@ -70,6 +70,29 @@ class CityRepositoryImpl(
         } catch (e: Exception) {
             Timber.e("Error initializeTrie: ${e.stackTraceToString()}")
             return flow { PagingData.Companion.empty<CityModel>() }
+        }
+    }
+
+    /**
+     * Searches for cities based on the provided query.
+     *
+     * If the query is blank, this function triggers the initialization of the Trie data structure,
+     * which is used for prefix-based searching.
+     *
+     * @param query The search query string.
+     * @return A list of [CityModel] objects that match the query.
+     * Returns an empty list in case of an error.
+     */
+    override suspend fun searchCities(query: String): List<CityModel> {
+        try {
+            if (query.isBlank()) {
+                initializeTrie()
+            }
+
+            return cityDataSource.mapCities(query, trie)
+        } catch (e: Exception) {
+            Timber.e("Error initializeTrie: ${e.stackTraceToString()}")
+            return emptyList<CityModel>()
         }
     }
 

@@ -1,6 +1,5 @@
 package com.boa.test.city.seeker.domain.usecase
 
-import androidx.paging.PagingData
 import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.domain.model.UiStateModel
 import com.boa.test.city.seeker.domain.repository.CityRepository
@@ -39,20 +38,12 @@ class SearchCityUseCase @Inject constructor(
      *
      * @param textFilter The text to filter cities by.
      * @return A [Flow] of [UiStateModel] representing the state of the search,
-     *   containing [PagingData] of [CityModel] on success.
+     *   containing [List] of [CityModel] on success.
      */
     @OptIn(FlowPreview::class)
-    operator fun invoke(textFilter: String): Flow<UiStateModel<PagingData<CityModel>>> = flow {
+    operator fun invoke(textFilter: String): Flow<UiStateModel<List<CityModel>>> = flow {
         emit(UiStateModel.Loading(true))
-        cityRepository.searchCities(textFilter).collect {
-            try {
-                emit(UiStateModel.Success(it))
-            } catch (e: Exception) {
-                Timber.e("Error searching cities: ${e.stackTraceToString()}")
-                emit(UiStateModel.Error(e.message ?: "An unknown error occurred"))
-            }
-            emit(UiStateModel.Loading(false))
-        }
+        emit(UiStateModel.Success(cityRepository.searchCities(textFilter)))
     }.catch {
         Timber.e("Error in flow searching cities: ${it.stackTraceToString()}")
         emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))

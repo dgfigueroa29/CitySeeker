@@ -1,15 +1,18 @@
 package com.boa.test.city.seeker.data.source
 
 import android.content.Context
+import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.common.FILE_CITY
 import com.boa.test.city.seeker.data.local.CityDatabase
 import com.boa.test.city.seeker.data.local.entity.CityEntity
 import com.boa.test.city.seeker.data.mapper.CityMapper
 import com.boa.test.city.seeker.data.network.CityApi
+import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.domain.util.removeSpecialCharacters
 import com.google.gson.stream.JsonReader
 import timber.log.Timber
 import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 /**
@@ -40,14 +43,14 @@ class CityDataSourceImpl @Inject constructor(
      *
      * @return A list of [CityEntity] objects representing all cities.
      */
-    @Suppress("NestedBlockDepth")
+    @Suppress("NestedBlockDepth", "CyclomaticComplexMethod")
     override suspend fun getAllCities(): List<CityEntity> {
         var cities = cityDatabase.cityDao().getAll()
         val cacheDir = context.cacheDir
         var tempFile = File(cacheDir, FILE_CITY)
         var needDownload = false
 
-        if (!tempFile.exists()) {
+        if (!tempFile.exists() || tempFile.length() == 0L || tempFile.isDirectory) {
             tempFile = File(cacheDir, "temp_$FILE_CITY")
             if (!tempFile.exists()) {
                 tempFile.createNewFile()
@@ -76,7 +79,18 @@ class CityDataSourceImpl @Inject constructor(
                         }
                     } ?: cities
                 } else {
-                    cities
+                    if (cities.isEmpty()) {
+                        val inputStream = context.resources.openRawResource(R.raw.cities)
+                        inputStream.use { input ->
+                            FileOutputStream(tempFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        processFile(tempFile)
+                        cityDatabase.cityDao().getAll()
+                    } else {
+                        cities
+                    }
                 }
             } else {
                 if (cities.isEmpty()) {
@@ -126,6 +140,28 @@ class CityDataSourceImpl @Inject constructor(
      */
     override suspend fun pagingSource(query: String, trie: CityTrie): CityPagingSource {
         try {
+            return CityPagingSource(mapCities(query, trie))
+        } catch (e: Exception) {
+            Timber.e("Error creating paging source: ${e.stackTraceToString()}")
+            return CityPagingSource(emptyList())
+        }
+    }
+
+    /**
+     * Maps cities based on the provided query string and Trie.
+     *
+     * This function first attempts to search the provided Trie for cities matching the query.
+     * If the query is blank and the trie search returns no results, it fetches all cities.
+     * Otherwise, it performs a database search for cities matching the query.
+     * The results are then mapped to the domain model and returned as a distinct list.
+     *
+     * @param query The search query.
+     * @param trie The Trie to use for initial searching.
+     * @return A distinct list of [CityModel] objects representing the search results.
+     * @throws Exception If an error occurs during the process.
+     */
+    override suspend fun mapCities(query: String, trie: CityTrie): List<CityModel> {
+        try {
             var cities = trie.search(query)
             cities = (if (query.isBlank() && cities.isEmpty()) {
                 CityMapper().mapAll(getAllCities())
@@ -133,10 +169,10 @@ class CityDataSourceImpl @Inject constructor(
                 CityMapper().mapAll(searchCities(query))
             }).distinct()
 
-            return CityPagingSource(cities)
+            return cities
         } catch (e: Exception) {
             Timber.e("Error creating paging source: ${e.stackTraceToString()}")
-            return CityPagingSource(emptyList())
+            return emptyList()
         }
     }
 
@@ -170,27 +206,29 @@ class CityDataSourceImpl @Inject constructor(
     @Suppress("NestedBlockDepth")
     private suspend fun processFile(file: File) {
         try {
-            val reader = JsonReader(file.reader())
+            if (file.isFile) {
+                val reader = JsonReader(file.reader())
 
-            reader.use {
-                try {
-                    reader.beginArray()
-                    val batch = mutableListOf<CityEntity>()
-                    while (reader.hasNext()) {
-                        val city = parseCity(reader)
-                        if (city.name.isNotBlank()) {
-                            batch.add(city)
+                reader.use {
+                    try {
+                        reader.beginArray()
+                        val batch = mutableListOf<CityEntity>()
+                        while (reader.hasNext()) {
+                            val city = parseCity(reader)
+                            if (city.name.isNotBlank()) {
+                                batch.add(city)
+                            }
+                            if (batch.size >= 10000) {
+                                insertBatch(batch)
+                                batch.clear()
+                            }
                         }
-                        if (batch.size >= 10000) {
-                            insertBatch(batch)
-                            batch.clear()
-                        }
+
+                        insertBatch(batch)
+                        reader.endArray()
+                    } catch (e: Exception) {
+                        Timber.e("Error processFile: ${e.stackTraceToString()}")
                     }
-
-                    insertBatch(batch)
-                    reader.endArray()
-                } catch (e: Exception) {
-                    Timber.e("Error processFile: ${e.stackTraceToString()}")
                 }
             }
         } catch (e: Exception) {

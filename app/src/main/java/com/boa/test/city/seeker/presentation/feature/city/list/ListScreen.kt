@@ -49,9 +49,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.presentation.component.ConnectivityStatus
@@ -60,13 +57,12 @@ import com.boa.test.city.seeker.presentation.component.LoadingIndicator
 import com.boa.test.city.seeker.presentation.component.OfflineIndicator
 import com.boa.test.city.seeker.presentation.component.SearchBar
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
-import com.boa.test.city.seeker.presentation.navigation.Screen
 import kotlinx.coroutines.launch
 
 @Composable
 fun ListScreen(
-    navController: NavHostController? = null,
-    viewModel: ListViewModel = hiltViewModel()
+    viewModel: ListViewModel = hiltViewModel(),
+    onCityClick: (Long) -> Unit
 ) {
     val loadingState = viewModel.listState.loadingState.collectAsState()
     val errorState = viewModel.listState.errorState.collectAsState()
@@ -98,7 +94,7 @@ fun ListScreen(
                 viewModel.refreshFavoriteFilter(it)
             },
             onCityClick = {
-                navController?.navigate("${Screen.MAP.endpoint}/${it}")
+                onCityClick(it)
             })
     }
 }
@@ -111,7 +107,7 @@ fun ListStateful(
     onShowFavoritesChanged: (Boolean) -> Unit,
     onCityClick: (Long) -> Unit
 ) {
-    val cities = listState.cityList.collectAsLazyPagingItems()
+    val cities = listState.cityList.collectAsState().value
     val query by listState.queryState.collectAsState()
     val isShowingFavorites by listState.favoriteFilterState.collectAsState()
     var searchQuery by remember { mutableStateOf(query) }
@@ -144,8 +140,8 @@ fun ListStateful(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(cities.itemCount) { index ->
-                        val city = cities[index] ?: CityModel()
+                    items(cities.size) { index ->
+                        val city = cities[index]
                         CityItem(
                             city = city,
                             onCityClick = {
@@ -195,7 +191,7 @@ private fun ListHeader(
     isShowingFavorites: Boolean,
     onShowFavoritesChanged: (Boolean) -> Unit,
     searchQuery: String,
-    cities: LazyPagingItems<CityModel>,
+    cities: List<CityModel>,
     onSearchQueryChanged: (String) -> Unit
 ) {
     Row(
@@ -224,7 +220,7 @@ private fun ListHeader(
             .padding(horizontal = 16.dp, vertical = 8.dp)
     )
     AnimatedVisibility(
-        visible = cities.itemCount == 0 && searchQuery.isNotEmpty(),
+        visible = cities.isEmpty() && searchQuery.isNotEmpty(),
         enter = fadeIn() + expandVertically(),
         exit = fadeOut() + shrinkVertically()
     ) {
