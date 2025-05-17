@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,7 @@ import com.boa.test.city.seeker.presentation.ui.previewCities
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryDark
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryLight
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryOffDark
+import com.boa.test.city.seeker.presentation.ui.theme.PrimaryOffLight
 
 
 /**
@@ -127,7 +129,11 @@ private fun BackIcon(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = PrimaryOffDark
+                tint = if (isSystemInDarkTheme()) {
+                    PrimaryOffLight
+                } else {
+                    PrimaryOffDark
+                }
             )
         }
     } else {

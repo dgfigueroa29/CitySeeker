@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -39,6 +40,12 @@ import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import androidx.core.graphics.createBitmap
+import com.boa.test.city.seeker.presentation.ui.theme.stringWhiteColor
+import com.mapbox.maps.extension.compose.annotation.generated.CircleAnnotation
+import com.mapbox.maps.plugin.annotation.AnnotationConfig
+import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
 
 private const val MAP_DEFAULT_ZOOM = 9.0
 
@@ -114,45 +121,20 @@ private fun MapContent(
                 mapView.mapboxMap.loadStyleUri(mapStyle) {
                     mapView.getMapboxMap().setCamera(cameraOptions)
                     val annotationApi = mapView.annotations
-                    val pointAnnotationManager = annotationApi.createPointAnnotationManager()
-
-                    val bitmap = drawableToBitmap(
-                        context,
-                        markerResourceId
+                    val circleAnnotationManager = annotationApi.createCircleAnnotationManager(
+                        AnnotationConfig()
                     )
-
-                    val pointAnnotationOptions = PointAnnotationOptions()
+                    val circleAnnotationOptions: CircleAnnotationOptions = CircleAnnotationOptions()
                         .withPoint(point)
-                        .withIconImage(bitmap)
-                        .withTextField(title)
-                        .withTextAnchor(TextAnchor.TOP)
-                        .withTextColor(stringPrimaryDark)
-                        .withIconColor(stringPrimaryDark)
-                        .withTextOffset(listOf(0.0, -2.0))
-
-                    pointAnnotationManager.create(pointAnnotationOptions)
+                        .withCircleRadius(8.0)
+                        .withCircleColor(stringPrimaryDark)
+                        .withCircleStrokeWidth(2.0)
+                        .withCircleStrokeColor(stringWhiteColor)
+                    circleAnnotationManager.create(circleAnnotationOptions)
                 }
             }
         )
     }
-}
-
-private fun drawableToBitmap(context: Context, drawableId: Int): Bitmap {
-    val drawable = ContextCompat.getDrawable(context, drawableId) ?: return Bitmap.createBitmap(
-        1,
-        1,
-        Bitmap.Config.ARGB_8888
-    )
-
-    val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 100
-    val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 100
-
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.draw(canvas)
-
-    return bitmap
 }
 
 @Composable
