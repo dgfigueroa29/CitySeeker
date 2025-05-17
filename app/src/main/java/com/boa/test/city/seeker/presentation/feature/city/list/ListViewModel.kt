@@ -3,6 +3,7 @@ package com.boa.test.city.seeker.presentation.feature.city.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boa.test.city.seeker.domain.usecase.SearchCityUseCase
+import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
@@ -20,7 +21,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class ListViewModel @Inject constructor(
-    private val searchCityUseCase: SearchCityUseCase
+    private val searchCityUseCase: SearchCityUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
 ) : ViewModel() {
     val listState = ListState()
     private var isConnected = true
@@ -52,19 +54,34 @@ class ListViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     private fun getCities(textFilter: String) {
         viewModelScope.launch {
-            searchCityUseCase.invoke(textFilter).collect { resource ->
-                if (resource.data != null && resource.message.isBlank()) {
-                    listState.setList(resource.data)
-                    refreshLoading(resource.isLoading)
-                    return@collect
-                }
+            searchCityUseCase.invoke(textFilter, listState.favoriteFilterState.value)
+                .collect { resource ->
+                    if (resource.data != null && resource.message.isBlank()) {
+                        listState.setList(resource.data)
+                        refreshLoading(resource.isLoading)
+                        return@collect
+                    }
 
-                if (resource.message.isNotBlank() && resource.data == null) {
-                    refreshError(resource.message)
-                    refreshLoading(resource.isLoading)
-                    return@collect
+                    if (resource.message.isNotBlank() && resource.data == null) {
+                        refreshError(resource.message)
+                        refreshLoading(resource.isLoading)
+                        return@collect
+                    }
                 }
-            }
+        }
+    }
+
+    /**
+     * Toggles the favorite status of a city.
+     *
+     * This function launches a coroutine to call the [ToggleFavoriteUseCase] with the given city ID.
+     * The use case will handle the logic to either add or remove the city from the favorites.
+     *
+     * @param cityId The unique identifier of the city whose favorite status needs to be toggled.
+     */
+    fun toggleFavorite(cityId: Long) {
+        viewModelScope.launch {
+            toggleFavoriteUseCase.invoke(cityId.toString())
         }
     }
 
@@ -106,11 +123,20 @@ class ListViewModel @Inject constructor(
     }
 
     /**
-     * Toggles the favorite filter state.
+     * Refreshes the favorite filter and updates the city list accordingly.
      *
-     * @param flag A boolean indicating whether the favorite filter should be active (true) or inactive (false).
+     * This function updates the favorite filter setting in the [listState] and then
+     * triggers a refresh of the city list by calling [refreshQuery] with the provided
+     * query. This ensures that the displayed list of cities reflects the new
+     * favorite filter state.
+     *
+     * @param withOnlyFavorites `true` to filter the list to show only favorite cities,
+     *                          `false` to show all cities.
+     * @param query The current search query string. This is used to re-filter the list
+     *              after the favorite filter has been applied.
      */
-    fun refreshFavoriteFilter(flag: Boolean) {
-        listState.setFavoriteFilter(flag)
+    fun refreshFavoriteFilter(withOnlyFavorites: Boolean, query: String) {
+        listState.setFavoriteFilter(withOnlyFavorites)
+        refreshQuery(query)
     }
 }

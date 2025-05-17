@@ -3,6 +3,7 @@ package com.boa.test.city.seeker.presentation.feature.city.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boa.test.city.seeker.domain.usecase.GetCityByIdUseCase
+import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
@@ -19,7 +20,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val getCityByIdUseCase: GetCityByIdUseCase
+    private val getCityByIdUseCase: GetCityByIdUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
 ) : ViewModel() {
     val detailState = DetailState()
 
@@ -46,6 +48,20 @@ class DetailViewModel @Inject constructor(
                     refreshLoading(resource.isLoading)
                 }
             }
+        }
+    }
+
+    /**
+     * Toggles the favorite status of a city.
+     *
+     * This function launches a coroutine to call the [ToggleFavoriteUseCase] with the given city ID.
+     * The use case will handle the logic to either add or remove the city from the favorites.
+     *
+     * @param cityId The unique identifier of the city whose favorite status needs to be toggled.
+     */
+    fun toggleFavorite(cityId: Long) {
+        viewModelScope.launch {
+            toggleFavoriteUseCase.invoke(cityId.toString())
         }
     }
 

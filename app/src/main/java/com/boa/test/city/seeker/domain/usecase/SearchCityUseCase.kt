@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import javax.inject.Inject
 
+
 /**
  * Use case for searching cities based on a text filter.
  *
@@ -22,28 +23,35 @@ import javax.inject.Inject
  *
  * The search operation is performed on the IO dispatcher to avoid blocking the main thread.
  * It also catches potential exceptions during the search and emits an error state.
+ *
+ * @property cityRepository The repository responsible for accessing city data.
  */
 @Suppress("TooGenericExceptionCaught")
 class SearchCityUseCase @Inject constructor(
     private val cityRepository: CityRepository
 ) {
+
     /**
-     * Invokes the search city use case.
+     * Invokes the use case to search for cities.
      *
-     * This function initiates a search for cities based on the provided text filter.
-     * It emits [UiStateModel] events to represent the state of the search operation,
-     * including loading, success with paginated city data, and errors.
+     * This function takes a text filter and a boolean flag indicating whether to search
+     * only for favorite cities. It returns a [Flow] of [UiStateModel] that represents
+     * the state of the search operation.
      *
      * The search is performed asynchronously on the IO dispatcher.
      *
-     * @param textFilter The text to filter cities by.
-     * @return A [Flow] of [UiStateModel] representing the state of the search,
-     *   containing [List] of [CityModel] on success.
+     * @param textFilter The text to filter the cities by.
+     * @param withOnlyFavorites A boolean flag indicating whether to search only for favorite cities.
+     * @return A [Flow] of [UiStateModel] representing the state of the search operation.
      */
     @OptIn(FlowPreview::class)
-    operator fun invoke(textFilter: String): Flow<UiStateModel<List<CityModel>>> = flow {
+    operator fun invoke(
+        textFilter: String,
+        withOnlyFavorites: Boolean
+    ): Flow<UiStateModel<List<CityModel>>> = flow {
         emit(UiStateModel.Loading(true))
-        emit(UiStateModel.Success(cityRepository.searchCities(textFilter)))
+        val cities = cityRepository.searchCities(textFilter, withOnlyFavorites)
+        emit(UiStateModel.Success(cities))
     }.catch {
         Timber.e("Error in flow searching cities: ${it.stackTraceToString()}")
         emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))

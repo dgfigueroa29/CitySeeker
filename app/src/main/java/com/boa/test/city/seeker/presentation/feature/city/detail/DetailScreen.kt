@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -27,20 +26,19 @@ import com.boa.test.city.seeker.presentation.component.OfflineIndicator
 import com.boa.test.city.seeker.presentation.component.isLandscape
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.Style
-import com.mapbox.maps.extension.compose.MapEffect
+import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.compose.MapboxMap
-import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.compose.style.GenericStyle
-import com.mapbox.maps.plugin.PuckBearing
-import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
-import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 
-private const val MAP_DEFAULT_ZOOM = 10.0
+private const val MAP_DEFAULT_ZOOM = 9.0
+private const val DURATION = 3000L
 
 @OptIn(MapboxExperimental::class)
 @Composable
@@ -66,12 +64,10 @@ fun DetailScreen(
     OfflineIndicator(isOffline)
     val city = viewModel.detailState.city.collectAsState().value
     val point = Point.fromLngLat(city.longitude, city.latitude)
-    val mapViewportState: MapViewportState = rememberMapViewportState {
-        setCameraOptions {
-            zoom(MAP_DEFAULT_ZOOM)
-            center(point)
-        }
-    }
+    val cameraOptions = CameraOptions.Builder()
+        .center(point)
+        .zoom(MAP_DEFAULT_ZOOM)
+        .build()
     var markerResourceId by remember {
         mutableIntStateOf(R.drawable.pin_24)
     }
@@ -81,22 +77,32 @@ fun DetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            MapHeader(city, navController)
-            MapContent(mapViewportState, markerResourceId, point)
+            MapHeader(
+                city = city,
+                navController = navController,
+                onToggleFavorite = {
+                    viewModel.toggleFavorite(it)
+                })
+            MapContent(markerResourceId, point, cameraOptions)
         }
     }
 }
 
 @Composable
 private fun MapContent(
-    mapViewportState: MapViewportState,
     markerResourceId: Int,
-    point: Point
+    point: Point,
+    cameraOptions: CameraOptions
 ) {
     Row {
         MapboxMap(
             modifier = Modifier.wrapContentSize(),
-            mapViewportState = mapViewportState,
+            mapViewportState = rememberMapViewportState {
+                flyTo(
+                    cameraOptions,
+                    mapAnimationOptions { duration(DURATION) }
+                )
+            },
             style = {
                 GenericStyle(
                     style = if (isSystemInDarkTheme()) {
@@ -119,14 +125,11 @@ private fun MapContent(
             PointAnnotation(point = point) {
                 iconImage = marker
             }
-            MapEffect(Unit) { mapView ->
-                mapView.location.updateSettings {
-                    locationPuck = createDefault2DPuck(withBearing = true)
-                    enabled = true
-                    puckBearing = PuckBearing.COURSE
-                    puckBearingEnabled = true
-                }
-                mapViewportState.transitionToFollowPuckState()
+            cameraOptions {
+                cameraOptions
+            }
+            mapAnimationOptions {
+                duration(DURATION)
             }
         }
     }
@@ -135,13 +138,20 @@ private fun MapContent(
 @Composable
 private fun MapHeader(
     city: CityModel,
-    navController: NavHostController?
+    navController: NavHostController?,
+    onToggleFavorite: (Long) -> Unit
 ) {
     if (!isLandscape()) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            CityItem(city = city, canGoBack = true, onFavoriteClick = {}, onCityClick = {
-                navController?.popBackStack()
-            })
+            CityItem(
+                city = city,
+                canGoBack = true,
+                onFavoriteClick = {
+                    onToggleFavorite(city.id)
+                },
+                onCityClick = {
+                    navController?.popBackStack()
+                })
         }
     }
 }

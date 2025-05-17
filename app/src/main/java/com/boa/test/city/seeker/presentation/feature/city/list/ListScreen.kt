@@ -90,11 +90,14 @@ fun ListScreen(
             onSearchQueryChanged = {
                 viewModel.refreshQuery(it)
             },
-            onShowFavoritesChanged = {
-                viewModel.refreshFavoriteFilter(it)
+            onShowFavoritesChanged = { favoriteFilter, searchQuery ->
+                viewModel.refreshFavoriteFilter(favoriteFilter, searchQuery)
             },
             onCityClick = {
                 onCityClick(it)
+            },
+            onToggleFavorite = {
+                viewModel.toggleFavorite(it)
             })
     }
 }
@@ -104,12 +107,14 @@ fun ListScreen(
 fun ListStateful(
     listState: ListState,
     onSearchQueryChanged: (String) -> Unit,
-    onShowFavoritesChanged: (Boolean) -> Unit,
-    onCityClick: (Long) -> Unit
+    onShowFavoritesChanged: (Boolean, String) -> Unit,
+    onCityClick: (Long) -> Unit,
+    onToggleFavorite: (Long) -> Unit
 ) {
     val cities = listState.cityList.collectAsState().value
     val query by listState.queryState.collectAsState()
     val isShowingFavorites by listState.favoriteFilterState.collectAsState()
+    var favoriteFilter by remember { mutableStateOf(isShowingFavorites) }
     var searchQuery by remember { mutableStateOf(query) }
 
     LaunchedEffect(searchQuery) {
@@ -117,6 +122,10 @@ fun ListStateful(
     }
 
     val listState = rememberLazyListState()
+
+    LaunchedEffect(favoriteFilter) {
+        onShowFavoritesChanged(favoriteFilter, searchQuery)
+    }
 
     Scaffold { paddingValues ->
         Box(
@@ -126,10 +135,12 @@ fun ListStateful(
         ) {
             Column {
                 ListHeader(
-                    isShowingFavorites,
-                    onShowFavoritesChanged,
-                    searchQuery,
-                    cities
+                    isShowingFavorites = isShowingFavorites,
+                    onShowFavoritesChanged = {
+                        favoriteFilter = it
+                    },
+                    searchQuery = searchQuery,
+                    cities = cities
                 ) { query ->
                     searchQuery = query
                 }
@@ -147,7 +158,9 @@ fun ListStateful(
                             onCityClick = {
                                 onCityClick(city.id)
                             },
-                            onFavoriteClick = { }
+                            onFavoriteClick = {
+                                onToggleFavorite(city.id)
+                            }
                         )
                     }
                 }
@@ -265,8 +278,9 @@ private fun ListScreenPreview(
     ListStateful(
         listState = statePreview,
         onSearchQueryChanged = { },
-        onShowFavoritesChanged = { },
-        onCityClick = { }
+        onShowFavoritesChanged = { _, _ -> },
+        onCityClick = { },
+        onToggleFavorite = { }
     )
 }
 
@@ -280,8 +294,9 @@ private fun ListEmptyScreenPreview(
     ListStateful(
         listState = state,
         onSearchQueryChanged = { },
-        onShowFavoritesChanged = { },
-        onCityClick = { }
+        onShowFavoritesChanged = { _, _ -> },
+        onCityClick = { },
+        onToggleFavorite = { }
     )
 }
 

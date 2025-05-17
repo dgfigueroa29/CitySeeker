@@ -27,7 +27,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +42,7 @@ import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.presentation.ui.previewCities
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryDark
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryLight
-import com.boa.test.city.seeker.presentation.ui.theme.PrimaryOff
+import com.boa.test.city.seeker.presentation.ui.theme.PrimaryOffDark
 
 
 /**
@@ -125,7 +127,7 @@ private fun BackIcon(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = stringResource(R.string.back),
-                tint = PrimaryOff
+                tint = PrimaryOffDark
             )
         }
     } else {
@@ -138,33 +140,37 @@ private fun FavoriteIcon(
     onFavoriteClick: () -> Unit,
     city: CityModel
 ) {
+    var isFavorite by remember { mutableStateOf(city.isFavorite) }
     IconButton(
-        onClick = onFavoriteClick,
+        onClick = {
+            isFavorite = !isFavorite
+            onFavoriteClick
+        },
         modifier = Modifier
             .size(48.dp)
             .padding(4.dp)
     ) {
         Icon(
-            imageVector = if (city.isFavorite) {
+            imageVector = if (isFavorite) {
                 Icons.Filled.Star
             } else {
                 Icons.Outlined.Star
             },
-            contentDescription = if (city.isFavorite) {
+            contentDescription = if (isFavorite) {
                 stringResource(R.string.favorite_selected)
             } else {
                 stringResource(
                     R.string.favorite_unselected
                 )
             },
-            tint = if (city.isFavorite) {
+            tint = if (isFavorite) {
                 PrimaryDark
             } else {
                 PrimaryLight
             },
             modifier = Modifier.scale(
                 animateFloatAsState(
-                    targetValue = if (city.isFavorite) {
+                    targetValue = if (isFavorite) {
                         1.2f
                     } else {
                         1f
