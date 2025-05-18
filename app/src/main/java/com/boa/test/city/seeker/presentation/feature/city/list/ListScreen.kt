@@ -57,12 +57,13 @@ import com.boa.test.city.seeker.presentation.component.LoadingIndicator
 import com.boa.test.city.seeker.presentation.component.OfflineIndicator
 import com.boa.test.city.seeker.presentation.component.SearchBar
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun ListScreen(
     viewModel: ListViewModel = hiltViewModel(),
-    onCityClick: (Long) -> Unit
+    onCityClick: (String) -> Unit
 ) {
     val loadingState = viewModel.listState.loadingState.collectAsState()
     val errorState = viewModel.listState.errorState.collectAsState()
@@ -93,9 +94,7 @@ fun ListScreen(
             onShowFavoritesChanged = { favoriteFilter, searchQuery ->
                 viewModel.refreshFavoriteFilter(favoriteFilter, searchQuery)
             },
-            onCityClick = {
-                onCityClick(it)
-            },
+            onCityClick = onCityClick,
             onToggleFavorite = {
                 viewModel.toggleFavorite(it)
             })
@@ -108,8 +107,8 @@ fun ListStateful(
     listState: ListState,
     onSearchQueryChanged: (String) -> Unit,
     onShowFavoritesChanged: (Boolean, String) -> Unit,
-    onCityClick: (Long) -> Unit,
-    onToggleFavorite: (Long) -> Unit
+    onCityClick: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit
 ) {
     val cities = listState.cityList.collectAsState().value
     val query by listState.queryState.collectAsState()
@@ -118,6 +117,7 @@ fun ListStateful(
     var searchQuery by remember { mutableStateOf(query) }
 
     LaunchedEffect(searchQuery) {
+        delay(200)
         onSearchQueryChanged(searchQuery)
     }
 
@@ -151,16 +151,14 @@ fun ListStateful(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(cities.size) { index ->
+                    items(cities.size, key = { index -> cities[index].id }) { index ->
                         val city = cities[index]
                         CityItem(
                             city = city,
                             onCityClick = {
-                                onCityClick(city.id)
+                                onCityClick(city.id.toString())
                             },
-                            onFavoriteClick = {
-                                onToggleFavorite(city.id)
-                            }
+                            onFavoriteClick = onToggleFavorite
                         )
                     }
                 }

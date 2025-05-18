@@ -10,5 +10,5 @@ val PrimaryDark = Color(0xFF6650a4)
 val PrimaryOffDark = Color(0xFF625b71)
 val TertiaryDark = Color(0xFF7D5260)
 
-const val stringPrimaryDark = "#6650a4"
-const val stringWhiteColor = "#ffffff"
+const val STRING_PRIMARY_DARK = "#6650a4"
+const val STRING_WHITE_COLOR = "#ffffff"

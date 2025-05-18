@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.boa.test.city.seeker.BuildConfig
 import com.boa.test.city.seeker.common.CACHE_SIZE
@@ -126,12 +125,13 @@ object ApplicationModule {
      *
      * This function is responsible for creating and providing a [CityDataSource]
      * implementation, which serves as the data source for city-related information.
-     * It takes [Context], [CityDatabase], and [CityApi] as dependencies to
+     * It takes [Context], [CityDatabase], [CityApi], and [PreferenceDataSource] as dependencies to
      * construct a [CityDataSourceImpl] instance.
      *
      * @param context The application context.
      * @param cityDatabase The Room database instance for local city data.
      * @param cityApi The Retrofit API interface for fetching city data from the network.
+     * @param preferenceDataSource The data source for accessing application preferences.
      * @return A singleton instance of [CityDataSource].
      */
     @Provides
@@ -139,8 +139,9 @@ object ApplicationModule {
     fun provideCityDataSource(
         @ApplicationContext context: Context,
         cityDatabase: CityDatabase,
-        cityApi: CityApi
-    ): CityDataSource = CityDataSourceImpl(context, cityDatabase, cityApi)
+        cityApi: CityApi,
+        preferenceDataSource: PreferenceDataSource
+    ): CityDataSource = CityDataSourceImpl(context, cityDatabase, cityApi, preferenceDataSource)
 
     /**
      * Provides a singleton instance of [CityRepository].

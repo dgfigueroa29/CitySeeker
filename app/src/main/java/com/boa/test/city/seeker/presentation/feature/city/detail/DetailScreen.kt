@@ -1,8 +1,5 @@
 package com.boa.test.city.seeker.presentation.feature.city.detail
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,39 +10,30 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.presentation.component.LoadingIndicator
 import com.boa.test.city.seeker.presentation.component.OfflineIndicator
 import com.boa.test.city.seeker.presentation.component.isLandscape
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
-import com.boa.test.city.seeker.presentation.ui.theme.stringPrimaryDark
+import com.boa.test.city.seeker.presentation.ui.theme.STRING_PRIMARY_DARK
+import com.boa.test.city.seeker.presentation.ui.theme.STRING_WHITE_COLOR
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
-import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
-import com.mapbox.maps.plugin.annotation.annotations
-import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
-import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import androidx.core.graphics.createBitmap
-import com.boa.test.city.seeker.presentation.ui.theme.stringWhiteColor
-import com.mapbox.maps.extension.compose.annotation.generated.CircleAnnotation
 import com.mapbox.maps.plugin.annotation.AnnotationConfig
+import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
+import com.mapbox.maps.plugin.scalebar.scalebar
 
 private const val MAP_DEFAULT_ZOOM = 9.0
 
@@ -63,7 +51,7 @@ fun DetailScreen(
     val isLoading = loadingState.value
     LoadingIndicator(isLoading)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(id) {
         viewModel.getCity(cityId = id)
     }
 
@@ -72,9 +60,6 @@ fun DetailScreen(
     OfflineIndicator(isOffline)
     val city = viewModel.detailState.city.collectAsState().value
     val point = Point.fromLngLat(city.longitude, city.latitude)
-    val markerResourceId by remember {
-        mutableIntStateOf(R.drawable.pin_24)
-    }
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
@@ -87,17 +72,13 @@ fun DetailScreen(
                 onToggleFavorite = {
                     viewModel.toggleFavorite(it)
                 })
-            MapContent(markerResourceId, point, city.getTitle())
+            MapContent(point)
         }
     }
 }
 
 @Composable
-private fun MapContent(
-    markerResourceId: Int,
-    point: Point,
-    title: String
-) {
+private fun MapContent(point: Point) {
     val cameraOptions = CameraOptions.Builder()
         .center(point)
         .zoom(MAP_DEFAULT_ZOOM)
@@ -118,8 +99,10 @@ private fun MapContent(
             factory = { mapView },
             modifier = Modifier.wrapContentSize(),
             update = { mapView ->
+                @Suppress("DEPRECATION")
                 mapView.mapboxMap.loadStyleUri(mapStyle) {
-                    mapView.getMapboxMap().setCamera(cameraOptions)
+                    mapView.scalebar.enabled = false
+                    mapView.mapboxMap.setCamera(cameraOptions)
                     val annotationApi = mapView.annotations
                     val circleAnnotationManager = annotationApi.createCircleAnnotationManager(
                         AnnotationConfig()
@@ -127,9 +110,9 @@ private fun MapContent(
                     val circleAnnotationOptions: CircleAnnotationOptions = CircleAnnotationOptions()
                         .withPoint(point)
                         .withCircleRadius(8.0)
-                        .withCircleColor(stringPrimaryDark)
+                        .withCircleColor(STRING_PRIMARY_DARK)
                         .withCircleStrokeWidth(2.0)
-                        .withCircleStrokeColor(stringWhiteColor)
+                        .withCircleStrokeColor(STRING_WHITE_COLOR)
                     circleAnnotationManager.create(circleAnnotationOptions)
                 }
             }
@@ -141,16 +124,14 @@ private fun MapContent(
 private fun MapHeader(
     city: CityModel,
     navController: NavHostController?,
-    onToggleFavorite: (Long) -> Unit
+    onToggleFavorite: (String) -> Unit
 ) {
     if (!isLandscape()) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             CityItem(
                 city = city,
                 canGoBack = true,
-                onFavoriteClick = {
-                    onToggleFavorite(city.id)
-                },
+                onFavoriteClick = onToggleFavorite,
                 onCityClick = {
                     navController?.popBackStack()
                 })

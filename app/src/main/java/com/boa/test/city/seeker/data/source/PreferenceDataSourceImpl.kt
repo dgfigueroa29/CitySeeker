@@ -4,8 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -33,11 +33,13 @@ class PreferenceDataSourceImpl @Inject constructor(private val dataStore: DataSt
         dataStore.edit { preferences ->
             val currentFavorites = preferences[FAVORITE_CITIES] ?: emptySet()
 
-            if (currentFavorites.contains(cityId)) {
-                preferences[FAVORITE_CITIES] = currentFavorites - cityId
+            val newFavorites = if (currentFavorites.contains(cityId)) {
+                currentFavorites - cityId
             } else {
-                preferences[FAVORITE_CITIES] = currentFavorites + cityId
+                currentFavorites + cityId
             }
+
+            preferences[FAVORITE_CITIES] = newFavorites
         }
     }
 
@@ -54,10 +56,9 @@ class PreferenceDataSourceImpl @Inject constructor(private val dataStore: DataSt
      *
      * @return The Set<String> of favorite city IDs, or an empty set if none are stored.
      */
-    override suspend fun getSetString(): Set<String> = dataStore.data
-        .map { preferences ->
-            preferences[FAVORITE_CITIES] ?: emptySet()
-        }.first()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun getSetString(): Set<String> =
+        dataStore.data.first()[FAVORITE_CITIES]?.toSet() ?: emptySet()
 
     /**
      * Checks if a specific city ID exists within the set of favorite cities in the DataStore.
@@ -69,8 +70,10 @@ class PreferenceDataSourceImpl @Inject constructor(private val dataStore: DataSt
      * @param cityId The ID of the city to check for existence.
      * @return `true` if the `cityId` is found in the set of favorite cities, `false` otherwise.
      */
-    override suspend fun hasString(cityId: String): Boolean =
-        dataStore.data.first()[FAVORITE_CITIES]?.contains(cityId) == true
+    override suspend fun hasString(cityId: String): Boolean {
+        val savedData = dataStore.data.first()[FAVORITE_CITIES]?.toSet() ?: emptySet()
+        return savedData.contains(cityId)
+    }
 
     companion object {
         /**

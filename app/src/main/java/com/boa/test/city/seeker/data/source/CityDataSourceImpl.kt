@@ -29,7 +29,8 @@ import javax.inject.Inject
 class CityDataSourceImpl @Inject constructor(
     private val context: Context,
     private val cityDatabase: CityDatabase,
-    private val cityApi: CityApi
+    private val cityApi: CityApi,
+    private val preferenceDataSource: PreferenceDataSource
 ) : CityDataSource {
     /**
      * Retrieves all cities.
@@ -162,14 +163,16 @@ class CityDataSourceImpl @Inject constructor(
      */
     override suspend fun mapCities(query: String, trie: CityTrie): List<CityModel> {
         try {
+            val favorites = preferenceDataSource.getSetString()
             var cities = trie.search(query)
+                .map { it.copy(isFavorite = favorites.contains(it.id.toString())) }
             cities = (if (query.isBlank() && cities.isEmpty()) {
                 CityMapper().mapAll(getAllCities())
             } else {
                 CityMapper().mapAll(searchCities(query))
             }).distinct()
 
-            return cities
+            return cities.map { it.copy(isFavorite = favorites.contains(it.id.toString())) }
         } catch (e: Exception) {
             Timber.e("Error creating paging source: ${e.stackTraceToString()}")
             return emptyList()

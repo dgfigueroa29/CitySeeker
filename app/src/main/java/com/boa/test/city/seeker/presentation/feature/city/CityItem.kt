@@ -57,11 +57,10 @@ fun CityItem(
     city: CityModel,
     canGoBack: Boolean = false,
     onCityClick: () -> Unit,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: (String) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.98f else 1f,
         animationSpec = spring(
@@ -143,14 +142,14 @@ private fun BackIcon(
 
 @Composable
 private fun FavoriteIcon(
-    onFavoriteClick: () -> Unit,
+    onFavoriteClick: (String) -> Unit,
     city: CityModel
 ) {
     var isFavorite by remember { mutableStateOf(city.isFavorite) }
     IconButton(
         onClick = {
             isFavorite = !isFavorite
-            onFavoriteClick
+            onFavoriteClick(city.id.toString())
         },
         modifier = Modifier
             .size(48.dp)

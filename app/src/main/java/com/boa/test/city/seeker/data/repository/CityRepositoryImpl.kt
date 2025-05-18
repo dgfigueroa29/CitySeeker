@@ -39,7 +39,6 @@ class CityRepositoryImpl(
     private val trie = CityTrie()
     private var isInitialized = false
 
-
     /**
      * Initializes the Trie data structure with all cities from the data source.
      *
@@ -151,11 +150,8 @@ class CityRepositoryImpl(
             try {
                 val city = cityDataSource.getCityById(id)
                 if (city != null) {
-                    val model = CityMapper().map(city).copy(
-                        isFavorite = preferenceDataSource.hasString(
-                            city.id.toString()
-                        )
-                    )
+                    val isFavorite = preferenceDataSource.hasString(city.id.toString())
+                    val model = CityMapper().map(city).copy(isFavorite = isFavorite)
                     emit(model)
                 } else {
                     emit(CityModel())

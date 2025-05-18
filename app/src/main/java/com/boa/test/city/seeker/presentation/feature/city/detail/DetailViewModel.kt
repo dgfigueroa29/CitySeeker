@@ -59,9 +59,9 @@ class DetailViewModel @Inject constructor(
      *
      * @param cityId The unique identifier of the city whose favorite status needs to be toggled.
      */
-    fun toggleFavorite(cityId: Long) {
+    fun toggleFavorite(cityId: String) {
         viewModelScope.launch {
-            toggleFavoriteUseCase.invoke(cityId.toString())
+            toggleFavoriteUseCase.invoke(cityId)
         }
     }
 

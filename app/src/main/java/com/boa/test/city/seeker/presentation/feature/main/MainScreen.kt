@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -39,7 +39,7 @@ fun PortraitLayout(navController: NavHostController? = null) {
 
 @Composable
 fun LandscapeLayout(navController: NavHostController? = null) {
-    var cityId by remember { mutableStateOf("0") }
+    var cityId by rememberSaveable { mutableStateOf("0") }
     Row(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -47,7 +47,7 @@ fun LandscapeLayout(navController: NavHostController? = null) {
                 .fillMaxHeight()
         ) {
             ListScreen(onCityClick = {
-                cityId = "$it"
+                cityId = it
             })
         }
 
@@ -56,7 +56,7 @@ fun LandscapeLayout(navController: NavHostController? = null) {
                 .weight(1f)
                 .fillMaxHeight()
         ) {
-            DetailScreen(navController, cityId = cityId)
+            DetailScreen(navController = navController, cityId = cityId)
         }
     }
 }
