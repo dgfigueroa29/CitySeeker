@@ -65,3 +65,9 @@ curl --location --globoff 'https://gist.githubusercontent.com/hernan-uala/dce884
 - Add multi-language support.
 - Improve code coverage with tests.
 - Publish to Play Store.
+
+## Considerations
+
+- Initially, Ktor was attempted to be used with Realm, but better performance was achieved by replacing both with Room and Retrofit with compression and streaming.
+- Decoupling of compose screens is prioritized over pagination.
+- Pagination was postponed as it required unifying viewModels and/or modifying clean implementation to use cacheIn.
