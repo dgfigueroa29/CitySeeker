@@ -28,9 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -145,10 +143,8 @@ private fun FavoriteIcon(
     onFavoriteClick: (String) -> Unit,
     city: CityModel
 ) {
-    var isFavorite by remember { mutableStateOf(city.isFavorite) }
     IconButton(
         onClick = {
-            isFavorite = !isFavorite
             onFavoriteClick(city.id.toString())
         },
         modifier = Modifier
@@ -156,26 +152,26 @@ private fun FavoriteIcon(
             .padding(4.dp)
     ) {
         Icon(
-            imageVector = if (isFavorite) {
+            imageVector = if (city.isFavorite) {
                 Icons.Filled.Star
             } else {
                 Icons.Outlined.Star
             },
-            contentDescription = if (isFavorite) {
+            contentDescription = if (city.isFavorite) {
                 stringResource(R.string.favorite_selected)
             } else {
                 stringResource(
                     R.string.favorite_unselected
                 )
             },
-            tint = if (isFavorite) {
+            tint = if (city.isFavorite) {
                 PrimaryDark
             } else {
                 PrimaryLight
             },
             modifier = Modifier.scale(
                 animateFloatAsState(
-                    targetValue = if (isFavorite) {
+                    targetValue = if (city.isFavorite) {
                         1.2f
                     } else {
                         1f

@@ -9,7 +9,7 @@ import retrofit2.http.Streaming
 /**
  * Retrofit interface for accessing city data from a remote source.
  */
-interface CityApi {
+fun interface CityApi {
     /**
      * Retrieves all city data from the remote source.
      *

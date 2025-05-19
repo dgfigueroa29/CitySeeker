@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
-import com.boa.test.city.seeker.presentation.component.ConnectivityStatus
 import com.boa.test.city.seeker.presentation.component.FilterSwitch
 import com.boa.test.city.seeker.presentation.component.LoadingIndicator
 import com.boa.test.city.seeker.presentation.component.OfflineIndicator
@@ -67,11 +66,6 @@ fun ListScreen(
 ) {
     val loadingState = viewModel.listState.loadingState.collectAsState()
     val errorState = viewModel.listState.errorState.collectAsState()
-
-    // Checking internet connection
-    ConnectivityStatus { isConnected ->
-        viewModel.updateConnectionStatus(isConnected)
-    }
 
     // Show loading indicator while fetching data
     val isLoading = loadingState.value

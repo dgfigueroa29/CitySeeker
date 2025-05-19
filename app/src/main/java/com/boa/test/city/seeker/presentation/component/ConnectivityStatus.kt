@@ -26,7 +26,7 @@ import com.boa.test.city.seeker.presentation.sensor.ConnectivityReceiver
  * @see ConnectivityReceiver
  * @see ConnectivityManager.CONNECTIVITY_ACTION
  */
-@Suppress("FunctionNaming")
+@Suppress("FunctionNaming", "unused")
 @Composable
 fun ConnectivityStatus(onConnectionChanged: (Boolean) -> Unit) {
     val context = LocalContext.current

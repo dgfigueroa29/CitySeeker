@@ -145,7 +145,7 @@ class CityRepositoryImpl(
      * If no city is found with the given ID, or if an error occurs during the process,
      * an empty [CityModel] is emitted.
      */
-    override suspend fun getCityById(id: Long): Flow<CityModel> {
+    override fun getCityById(id: Long): Flow<CityModel> {
         return flow {
             try {
                 val city = cityDataSource.getCityById(id)

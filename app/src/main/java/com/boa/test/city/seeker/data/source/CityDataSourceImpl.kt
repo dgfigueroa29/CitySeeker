@@ -3,6 +3,7 @@ package com.boa.test.city.seeker.data.source
 import android.content.Context
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.common.FILE_CITY
+import com.boa.test.city.seeker.common.LIMIT
 import com.boa.test.city.seeker.data.local.CityDatabase
 import com.boa.test.city.seeker.data.local.entity.CityEntity
 import com.boa.test.city.seeker.data.mapper.CityMapper
@@ -46,7 +47,7 @@ class CityDataSourceImpl @Inject constructor(
      */
     @Suppress("NestedBlockDepth", "CyclomaticComplexMethod")
     override suspend fun getAllCities(): List<CityEntity> {
-        var cities = cityDatabase.cityDao().getAll()
+        var cities = cityDatabase.cityDao().getAll().take(LIMIT)
         val cacheDir = context.cacheDir
         var tempFile = File(cacheDir, FILE_CITY)
         var needDownload = false
@@ -61,42 +62,11 @@ class CityDataSourceImpl @Inject constructor(
 
         return try {
             if (needDownload && cities.isEmpty()) {
-                val response = cityApi.getAllCities()
-                if (response.isSuccessful) {
-                    response.body()?.let { body ->
-                        body.use {
-                            try {
-                                it.byteStream().use { input ->
-                                    tempFile.outputStream().use { output ->
-                                        input.copyTo(output)
-                                    }
-                                }
-                                processFile(tempFile)
-                                cityDatabase.cityDao().getAll()
-                            } catch (e: Exception) {
-                                Timber.e("Error processing cities: ${e.stackTraceToString()}")
-                                cities
-                            }
-                        }
-                    } ?: cities
-                } else {
-                    if (cities.isEmpty()) {
-                        val inputStream = context.resources.openRawResource(R.raw.cities)
-                        inputStream.use { input ->
-                            FileOutputStream(tempFile).use { output ->
-                                input.copyTo(output)
-                            }
-                        }
-                        processFile(tempFile)
-                        cityDatabase.cityDao().getAll()
-                    } else {
-                        cities
-                    }
-                }
+                downloadCities(tempFile, cities)
             } else {
                 if (cities.isEmpty()) {
                     processFile(tempFile)
-                    cityDatabase.cityDao().getAll()
+                    cityDatabase.cityDao().getAll().take(LIMIT)
                 } else {
                     cities
                 }
@@ -104,6 +74,60 @@ class CityDataSourceImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e("Error downloading cities: ${e.stackTraceToString()}")
             cities
+        }
+    }
+
+    /**
+     * Downloads city data from the network API.
+     *
+     * This function attempts to fetch city data from the `cityApi`.
+     * If the request is successful, the response body is written to the `tempFile`,
+     * then the file is processed, and a limited number of cities are retrieved from the database.
+     * If the network request fails and the initial `cities` list is empty,
+     * it falls back to loading cities from a raw resource file (`R.raw.cities`),
+     * processes this file, and then retrieves cities from the database.
+     * If the network request fails and `cities` is not empty, the original `cities` list is returned.
+     *
+     * @param tempFile The [File] to which the downloaded city data will be written.
+     * @param cities The initial list of [CityEntity] objects. This is used as a fallback if the download fails.
+     * @return A list of [CityEntity] objects, either downloaded and processed or from the fallback.
+     */
+    @Suppress("NestedBlockDepth")
+    private suspend fun downloadCities(
+        tempFile: File,
+        cities: List<CityEntity>
+    ): List<CityEntity> {
+        val response = cityApi.getAllCities()
+        return if (response.isSuccessful) {
+            response.body()?.let { body ->
+                body.use {
+                    try {
+                        it.byteStream().use { input ->
+                            tempFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        processFile(tempFile)
+                        cityDatabase.cityDao().getAll().take(LIMIT)
+                    } catch (e: Exception) {
+                        Timber.e("Error processing cities: ${e.stackTraceToString()}")
+                        cities
+                    }
+                }
+            } ?: cities
+        } else {
+            if (cities.isEmpty()) {
+                val inputStream = context.resources.openRawResource(R.raw.cities)
+                inputStream.use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                processFile(tempFile)
+                cityDatabase.cityDao().getAll().take(LIMIT)
+            } else {
+                cities
+            }
         }
     }
 
@@ -122,7 +146,7 @@ class CityDataSourceImpl @Inject constructor(
             cityDatabase.cityDao().searchCities(query)
         } else {
             cityDatabase.cityDao().getAll()
-        }).distinct()
+        }).distinct().take(LIMIT)
         return cities
     }
 
@@ -221,7 +245,7 @@ class CityDataSourceImpl @Inject constructor(
                             if (city.name.isNotBlank()) {
                                 batch.add(city)
                             }
-                            if (batch.size >= 10000) {
+                            if (batch.size >= LIMIT) {
                                 insertBatch(batch)
                                 batch.clear()
                             }

@@ -62,6 +62,7 @@ class DetailViewModel @Inject constructor(
     fun toggleFavorite(cityId: String) {
         viewModelScope.launch {
             toggleFavoriteUseCase.invoke(cityId)
+            detailState.setFavorite()
         }
     }
 

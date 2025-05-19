@@ -41,6 +41,11 @@ class DetailState(
     fun setError(error: String) {
         this._errorState.value = error
     }
+
+    fun setFavorite() {
+        val currentCity = this._city.value
+        this._city.value = currentCity.copy(isFavorite = !currentCity.isFavorite)
+    }
 }
 
 /**

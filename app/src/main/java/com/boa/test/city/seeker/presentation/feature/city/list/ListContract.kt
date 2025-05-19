@@ -68,6 +68,16 @@ data class ListState(
     fun previewList() {
         this._cityList.value = previewCities()
     }
+
+    fun setFavorite(cityId: String) {
+        this._cityList.value = this._cityList.value.map {
+            if (it.id.toString() == cityId) {
+                it.copy(isFavorite = !it.isFavorite)
+            } else {
+                it
+            }
+        }
+    }
 }
 
 /**

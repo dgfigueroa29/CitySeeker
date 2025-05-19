@@ -122,6 +122,7 @@ dependencies {
     implementation(libs.lottie.android)
     implementation(libs.mapbox)
     implementation(libs.mapbox.compose)
+    implementation(libs.androidx.ui.tooling.preview)
 
     //Data
     implementation(libs.datastore.android)
@@ -144,5 +145,4 @@ dependencies {
     //Debugging
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(libs.androidx.ui.tooling.preview)
 }

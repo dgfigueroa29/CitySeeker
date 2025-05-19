@@ -32,6 +32,7 @@ class ListViewModel @Inject constructor(
      *
      * @param isConnected A boolean indicating whether the application is connected to the internet.
      */
+    @Suppress("unused")
     fun updateConnectionStatus(isConnected: Boolean) {
         this.isConnected = isConnected
 
@@ -82,6 +83,7 @@ class ListViewModel @Inject constructor(
     fun toggleFavorite(cityId: String) {
         viewModelScope.launch {
             toggleFavoriteUseCase.invoke(cityId)
+            listState.setFavorite(cityId)
         }
     }
 

@@ -39,5 +39,5 @@ interface CityRepository {
      * @param id The unique identifier of the city.
      * @return A [Flow] emitting the [CityModel] matching the given ID.
      */
-    suspend fun getCityById(id: Long): Flow<CityModel>
+    fun getCityById(id: Long): Flow<CityModel>
 }
