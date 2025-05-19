@@ -1,8 +1,14 @@
 # CitySeeker by Boa Apps
 
-With this app you will be able to search among more than 200 cities in the world, locate them on a
-map and choose your favorites. It is about Android App Technical Testing with Kotlin, Compose, Ktor
-and Hilt.
+With this app you will be able to search among more than 200 cities in the world, locate them on a map and choose your favorites. It is about Android App Technical Testing with Kotlin, Compose, Retrofit and Hilt.
+
+## Initial configuration
+
+- Make an Mapbox account in https://account.mapbox.com/auth/signup/
+- Go to Mapbox console and copy your new public token.
+- In your `local.properties` file create add a line with this text: `mapboxToken={yourToken}`.
+- In that line replace the string `{yourToken}` with your Mapbox public token.
+- Use the latest stable version of Android Studio and download Android SDKs from API level 31 onwards.
 
 ## Features
 
@@ -15,6 +21,15 @@ and Hilt.
 - Proper handling of states and errors in the UI.
 - Following clean architecture and best practices in Android.
 - Searching and filtering places using a text input.
+- Filter cities by the cities marked as favorites.
+- Favorite city functionality with datastore persistence.
+- Optimized room implementation to persist downloaded data.
+- Optimized retrofit implementation for fast and compressed connection and download.
+- Auto-adjust layout to switch between light and dark theme.
+- Using animations.
+- Mapbox implementation to locate the selected city.
+- Auto-adjust layout for screen rotation.
+- Offline-first (after download json). In any case, a local copy of the file is available for the first upload in case there is no response from the API. 
 
 ### Using gist.githubusercontent.com API RESTful
 
@@ -42,10 +57,11 @@ curl --location --globoff 'https://gist.githubusercontent.com/hernan-uala/dce884
 
 ## Next Steps
 
-- Offline-first
-- Analytics & Monitoring
-- Benchmarking
-- Accessibility audit
-- Security audit
-- Performance audit
-- Publish to Play Store
+- Analytics & Monitoring.
+- Benchmarking.
+- Accessibility audit.
+- Security audit.
+- Performance audit.
+- Add multi-language support.
+- Improve code coverage with tests.
+- Publish to Play Store.
