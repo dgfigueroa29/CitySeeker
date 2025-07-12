@@ -120,7 +120,7 @@ class CityRepositoryImpl(
             }
 
             val favorites = preferenceDataSource.getSetString()
-            var cities = cityDataSource.mapCities(query, trie)
+            val cities = cityDataSource.mapCities(query, trie)
                 .map { it.copy(isFavorite = favorites.contains(it.id.toString())) }
             return if (withOnlyFavorites) {
                 cities.filter { it.isFavorite }
@@ -129,7 +129,7 @@ class CityRepositoryImpl(
             }
         } catch (e: Exception) {
             Timber.e("Error initializeTrie: ${e.stackTraceToString()}")
-            return emptyList<CityModel>()
+            return emptyList()
         }
     }
 

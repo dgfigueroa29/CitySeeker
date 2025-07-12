@@ -17,6 +17,13 @@ import com.boa.test.city.seeker.presentation.feature.city.detail.DetailScreen
 import com.boa.test.city.seeker.presentation.feature.city.list.ListScreen
 import com.boa.test.city.seeker.presentation.navigation.Screen
 
+/**
+ * Composable function that displays the main screen of the application.
+ *
+ * It checks the device orientation and displays the appropriate layout (Landscape or Portrait).
+ *
+ * @param navController The NavHostController used for navigation.
+ */
 @Composable
 fun MainScreen(navController: NavHostController? = null) {
     val landscape = isLandscape()
@@ -28,6 +35,12 @@ fun MainScreen(navController: NavHostController? = null) {
     }
 }
 
+/**
+ * Composable function for the portrait layout of the main screen.
+ * It displays a list of cities and navigates to the map screen when a city is clicked.
+ *
+ * @param navController The NavHostController for navigation.
+ */
 @Composable
 fun PortraitLayout(navController: NavHostController? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -37,6 +50,12 @@ fun PortraitLayout(navController: NavHostController? = null) {
     }
 }
 
+/**
+ * Composable function for displaying the main screen in landscape orientation.
+ * It shows a list of cities on the left and the details of the selected city on the right.
+ *
+ * @param navController The navigation controller for handling navigation events.
+ */
 @Composable
 fun LandscapeLayout(navController: NavHostController? = null) {
     var cityId by rememberSaveable { mutableStateOf("0") }

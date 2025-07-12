@@ -14,6 +14,15 @@ import com.boa.test.city.seeker.presentation.feature.city.detail.DetailScreen
 import com.boa.test.city.seeker.presentation.feature.city.list.ListScreen
 import com.boa.test.city.seeker.presentation.feature.main.MainScreen
 
+/**
+ * Composable function that defines the navigation graph for the application.
+ *
+ * It sets up the different screens (MainScreen, ListScreen, DetailScreen) and the transitions
+ * between them.
+ *
+ * @param modifier Optional [Modifier] to be applied to the NavHost.
+ * @param navController The [NavHostController] that manages app navigation.
+ */
 @Suppress("FunctionNaming")
 @Composable
 fun NavigationGraph(

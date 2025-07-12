@@ -14,6 +14,16 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.boa.test.city.seeker.R
 
+/**
+ * A composable function that displays a loading indicator.
+ *
+ * The loading indicator is a Lottie animation that is displayed in the center of the screen
+ * when the `isLoading` parameter is true. The animation is loaded from the `R.raw.loading`
+ * resource.
+ *
+ * @param isLoading A boolean value that indicates whether the loading indicator should be
+ * displayed.
+ */
 @Composable
 fun LoadingIndicator(isLoading: Boolean) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading))

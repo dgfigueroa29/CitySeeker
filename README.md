@@ -1,6 +1,8 @@
 # CitySeeker by Boa Apps
 
-With this app you will be able to search among more than 200 cities in the world, locate them on a map and choose your favorites. It is about Android App Technical Testing with Kotlin, Compose, Retrofit and Hilt.
+With this app you will be able to search among more than 200 cities in the world, locate them on a
+map and choose your favorites. It is about Android App Technical Testing with Kotlin, Compose,
+Retrofit and Hilt.
 
 ## Initial configuration
 
@@ -8,7 +10,8 @@ With this app you will be able to search among more than 200 cities in the world
 - Go to Mapbox console and copy your new public token.
 - In your `local.properties` file create add a line with this text: `mapboxToken={yourToken}`.
 - In that line replace the string `{yourToken}` with your Mapbox public token.
-- Use the latest stable version of Android Studio and download Android SDKs from API level 31 onwards.
+- Use the latest stable version of Android Studio and download Android SDKs from API level 31
+  onwards.
 
 ## Features
 
@@ -29,7 +32,8 @@ With this app you will be able to search among more than 200 cities in the world
 - Using animations.
 - Mapbox implementation to locate the selected city.
 - Auto-adjust layout for screen rotation.
-- Offline-first (after download json). In any case, a local copy of the file is available for the first upload in case there is no response from the API. 
+- Offline-first (after download json). In any case, a local copy of the file is available for the
+  first upload in case there is no response from the API.
 
 ### Using gist.githubusercontent.com API RESTful
 
@@ -68,6 +72,8 @@ curl --location --globoff 'https://gist.githubusercontent.com/hernan-uala/dce884
 
 ## Considerations
 
-- Initially, Ktor was attempted to be used with Realm, but better performance was achieved by replacing both with Room and Retrofit with compression and streaming.
+- Initially, Ktor was attempted to be used with Realm, but better performance was achieved by
+  replacing both with Room and Retrofit with compression and streaming.
 - Decoupling of compose screens is prioritized over pagination.
-- Pagination was postponed as it required unifying viewModels and/or modifying clean implementation to use cacheIn.
+- Pagination was postponed as it required unifying viewModels and/or modifying clean implementation
+  to use cacheIn.

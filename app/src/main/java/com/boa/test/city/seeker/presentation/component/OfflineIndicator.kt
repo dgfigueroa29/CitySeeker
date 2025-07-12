@@ -14,6 +14,14 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.boa.test.city.seeker.R
 
+/**
+ * A composable function that displays an offline indicator.
+ *
+ * The indicator consists of a Lottie animation that is displayed when the device is offline.
+ * The animation is displayed in a white box that fills the entire screen.
+ *
+ * @param isOffline A boolean value that indicates whether the device is offline.
+ */
 @Composable
 fun OfflineIndicator(isOffline: Boolean) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.offline))

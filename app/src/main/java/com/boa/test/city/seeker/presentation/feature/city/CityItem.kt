@@ -111,6 +111,13 @@ fun CityItem(
     }
 }
 
+/**
+ * A composable function that displays a back icon if the user can go back, otherwise it displays a
+ * spacer.
+ *
+ * @param canGoBack A boolean value that indicates whether the user can go back or not.
+ * @param onClick A lambda function that is called when the back icon is clicked.
+ */
 @Composable
 private fun BackIcon(
     canGoBack: Boolean,
@@ -138,6 +145,12 @@ private fun BackIcon(
     }
 }
 
+/**
+ * A composable function that displays a favorite icon.
+ *
+ * @param onFavoriteClick A lambda function that is called when the favorite icon is clicked.
+ * @param city The city model to display.
+ */
 @Composable
 private fun FavoriteIcon(
     onFavoriteClick: (String) -> Unit,

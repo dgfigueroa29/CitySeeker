@@ -23,8 +23,7 @@ val localProperties = if (isRunningLocal) {
 }
 
 val mapboxToken: String =
-    System.getenv("MAPBOX_TOKEN")
-        ?.toString() ?: localProperties.getProperty("mapboxToken")
+    System.getenv("MAPBOX_TOKEN") ?: localProperties.getProperty("mapboxToken")
     ?: ""
 
 android {
@@ -64,6 +63,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
+        @Suppress("DEPRECATION")
         jvmTarget = "17"
     }
     buildFeatures {

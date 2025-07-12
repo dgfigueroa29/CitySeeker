@@ -47,7 +47,7 @@ class CityDataSourceImpl @Inject constructor(
      */
     @Suppress("NestedBlockDepth", "CyclomaticComplexMethod")
     override suspend fun getAllCities(): List<CityEntity> {
-        var cities = cityDatabase.cityDao().getAll().take(LIMIT)
+        val cities = cityDatabase.cityDao().getAll().take(LIMIT)
         val cacheDir = context.cacheDir
         var tempFile = File(cacheDir, FILE_CITY)
         var needDownload = false
@@ -64,11 +64,9 @@ class CityDataSourceImpl @Inject constructor(
             if (needDownload && cities.isEmpty()) {
                 downloadCities(tempFile, cities)
             } else {
-                if (cities.isEmpty()) {
+                cities.ifEmpty {
                     processFile(tempFile)
                     cityDatabase.cityDao().getAll().take(LIMIT)
-                } else {
-                    cities
                 }
             }
         } catch (e: Exception) {
@@ -116,7 +114,7 @@ class CityDataSourceImpl @Inject constructor(
                 }
             } ?: cities
         } else {
-            if (cities.isEmpty()) {
+            cities.ifEmpty {
                 val inputStream = context.resources.openRawResource(R.raw.cities)
                 inputStream.use { input ->
                     FileOutputStream(tempFile).use { output ->
@@ -125,8 +123,6 @@ class CityDataSourceImpl @Inject constructor(
                 }
                 processFile(tempFile)
                 cityDatabase.cityDao().getAll().take(LIMIT)
-            } else {
-                cities
             }
         }
     }

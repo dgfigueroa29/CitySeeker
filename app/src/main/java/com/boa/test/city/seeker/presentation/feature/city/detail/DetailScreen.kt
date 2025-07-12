@@ -37,6 +37,16 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 
 private const val MAP_DEFAULT_ZOOM = 9.0
 
+/**
+ * Displays the detail screen for a specific city.
+ *
+ * This screen shows information about a city, including its location on a map.
+ * It also allows the user to toggle the city as a favorite.
+ *
+ * @param navController The NavHostController for navigation.
+ * @param viewModel The DetailViewModel for managing the screen's state.
+ * @param cityId The ID of the city to display.
+ */
 @Composable
 fun DetailScreen(
     navController: NavHostController? = null,
@@ -77,6 +87,11 @@ fun DetailScreen(
     }
 }
 
+/**
+ * Displays the map with a marker at the given point.
+ *
+ * @param point The point to display on the map.
+ */
 @Composable
 private fun MapContent(point: Point) {
     val cameraOptions = CameraOptions.Builder()
@@ -120,6 +135,16 @@ private fun MapContent(point: Point) {
     }
 }
 
+/**
+ * Displays the header for the map screen, which includes the city information and navigation
+ * controls.
+ * This header is only shown in portrait mode.
+ *
+ * @param city The [CityModel] to display information for.
+ * @param navController The [NavHostController] for navigation.
+ * @param onToggleFavorite A lambda function to be invoked when the favorite button is clicked.
+ *                         It takes the city ID as a [String] parameter.
+ */
 @Composable
 private fun MapHeader(
     city: CityModel,

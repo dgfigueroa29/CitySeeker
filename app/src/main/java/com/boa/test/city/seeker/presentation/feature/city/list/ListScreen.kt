@@ -59,6 +59,21 @@ import com.boa.test.city.seeker.presentation.feature.city.CityItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Composable function that displays the main list screen of the application.
+ *
+ * This screen is responsible for:
+ * - Observing and displaying the loading state.
+ * - Observing and displaying any error states (e.g., offline).
+ * - Triggering the initial data load.
+ * - Delegating the display of the actual list content to [ListStateful] when data is available
+ * and there are no errors.
+ *
+ * @param viewModel The [ListViewModel] instance used to manage the state and logic of this screen.
+ *                  It is typically provided by Hilt.
+ * @param onCityClick A callback function that is invoked when a city item in the list is clicked.
+ *                    It receives the ID of the clicked city as a [String].
+ */
 @Composable
 fun ListScreen(
     viewModel: ListViewModel = hiltViewModel(),
@@ -95,6 +110,30 @@ fun ListScreen(
     }
 }
 
+/**
+ * A stateful composable function that displays the list of cities.
+ *
+ * This composable is responsible for:
+ * - Observing the list of cities, search query, and favorite filter state from [listState].
+ * - Providing UI elements for searching and filtering (delegated to [ListHeader]).
+ * - Displaying the list of cities using a [LazyColumn].
+ * - Handling user interactions such as clicking on a city or toggling its favorite status.
+ * - Displaying a "scroll to top" button (delegated to [ListFooter]).
+ * - Debouncing search query changes to avoid excessive updates.
+ *
+ * @param listState The [ListState] object containing the current state of the list (cities, query,
+ * filter).
+ * @param onSearchQueryChanged A callback function invoked when the search query changes.
+ *                             It receives the new search query as a [String].
+ * @param onShowFavoritesChanged A callback function invoked when the favorite filter is changed.
+ *                               It receives a [Boolean] indicating whether to show only favorites
+ *                               and the current search query as a [String].
+ * @param onCityClick A callback function invoked when a city item is clicked.
+ *                    It receives the ID of the clicked city as a [String].
+ * @param onToggleFavorite A callback function invoked when the favorite icon of a city is clicked.
+ *                         It receives the ID of the city whose favorite status is to be toggled as
+ *                         a [String].
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListStateful(
@@ -163,6 +202,20 @@ fun ListStateful(
     }
 }
 
+/**
+ * Composable function that displays a Floating Action Button (FAB) to scroll to the top of the
+ * list.
+ *
+ * This FAB is only visible when:
+ * - The list is not currently being scrolled.
+ * - The first visible item in the list is not the first item (index > 0).
+ *
+ * The FAB has an animation for appearing (scale in and fade in) and disappearing (scale out and
+ * fade out).
+ * When clicked, it smoothly scrolls the list to the top.
+ *
+ * @param listState The [LazyListState] of the list to be controlled.
+ */
 @Composable
 @SuppressLint("FrequentlyChangedStateReadInComposition")
 private fun BoxScope.ListFooter(listState: LazyListState) {
@@ -191,6 +244,27 @@ private fun BoxScope.ListFooter(listState: LazyListState) {
     }
 }
 
+/**
+ * Composable function that displays the header section of the city list.
+ *
+ * This header includes:
+ * - The application name.
+ * - A [FilterSwitch] to toggle between showing all cities and only favorite cities.
+ * - A [SearchBar] to allow users to search for cities.
+ * - An animated [NoResultsFound] message that appears when the search query is not empty and
+ *   the list of cities is empty.
+ *
+ * @param isShowingFavorites A boolean indicating whether the favorite filter is currently active.
+ * @param onShowFavoritesChanged A callback function that is invoked when the state of the favorite
+ * filter changes.
+ *                               It receives a boolean value: `true` if favorites should be shown,
+ *                               `false` otherwise.
+ * @param searchQuery The current text entered in the search bar.
+ * @param cities The current list of [CityModel] objects to be displayed or filtered.
+ * @param onSearchQueryChanged A callback function that is invoked when the search query text
+ * changes.
+ *                             It receives the new search query as a [String].
+ */
 @Composable
 private fun ListHeader(
     isShowingFavorites: Boolean,
@@ -233,6 +307,12 @@ private fun ListHeader(
     }
 }
 
+/**
+ * Composable function that displays a message indicating that no results were found for a search.
+ *
+ * This typically includes a search icon and a text message.
+ * It is displayed when a search query yields no matching cities.
+ */
 @Composable
 fun NoResultsFound() {
     Column(
@@ -258,6 +338,19 @@ fun NoResultsFound() {
     }
 }
 
+/**
+ * Composable function for previewing the [ListStateful] composable with sample data.
+ *
+ * This preview utilizes a [PreviewParameterProvider] ([ListStatePreviewParameterProvider])
+ * to supply different [ListState] instances, allowing for visualization of the list
+ * in various states (e.g., with data, empty).
+ *
+ * It initializes a preview version of the [ListState] and then renders the [ListStateful]
+ * composable with stubbed callback functions.
+ *
+ * @param state The [ListState] instance provided by the [ListStatePreviewParameterProvider].
+ *              This state contains the data and configuration for the list preview.
+ */
 @Composable
 @Preview(name = "List", showSystemUi = true, showBackground = true)
 @Suppress("UnusedPrivateMember")
@@ -276,6 +369,24 @@ private fun ListScreenPreview(
     )
 }
 
+/**
+ * Preview composable function for displaying the list screen in an empty state.
+ *
+ * This preview utilizes a [ListStatePreviewParameterProvider] to inject a [ListState]
+ * instance representing an empty list. It then renders the [ListStateful] composable
+ * with this empty state, allowing for visual inspection of how the UI appears when no
+ * cities are available or match the current search criteria.
+ *
+ * The `@Preview` annotation configures the preview environment, setting its name,
+ * enabling the system UI, and showing a background for better context.
+ *
+ * The `@Suppress("UnusedPrivateMember")` annotation is used because this preview function
+ * is private and only intended for use by the Android Studio Preview tool.
+ *
+ * @param state The [ListState] instance provided by the [ListStatePreviewParameterProvider].
+ *              This state will typically represent an empty list or a scenario where
+ *              no search results are found.
+ */
 @Composable
 @Preview(name = "ListEmpty", showSystemUi = true, showBackground = true)
 @Suppress("UnusedPrivateMember")

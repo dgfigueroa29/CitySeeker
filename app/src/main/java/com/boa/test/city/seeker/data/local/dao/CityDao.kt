@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.boa.test.city.seeker.common.LIMIT
 import com.boa.test.city.seeker.data.local.entity.CityEntity
 
 /**
