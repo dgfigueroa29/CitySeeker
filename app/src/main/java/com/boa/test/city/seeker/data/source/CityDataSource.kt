@@ -32,7 +32,10 @@ interface CityDataSource {
      * @param trie The CityTrie to use for searching.
      * @return A [CityPagingSource] that can be used to load city data in pages.
      */
-    suspend fun pagingSource(query: String, trie: CityTrie): CityPagingSource
+    suspend fun pagingSource(
+        query: String,
+        trie: OptimizedCityTrie,
+    ): CityPagingSource
 
     /**
      * Retrieves a city from the data source by its unique ID.
@@ -54,5 +57,8 @@ interface CityDataSource {
      * @return A list of [CityModel] objects that match the query, potentially
      *         representing suggestions or exact matches.
      */
-    suspend fun mapCities(query: String, trie: CityTrie): List<CityModel>
+    suspend fun mapCities(
+        query: String,
+        trie: OptimizedCityTrie,
+    ): List<CityModel>
 }

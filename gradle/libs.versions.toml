@@ -1,36 +1,55 @@
 #noinspection Aligned16KB
 [versions]
-agp = "8.12.0"
-kotlin = "2.2.0"
-coreKtx = "1.16.0"
+agp = "9.2.1"
+kotlin = "2.4.0"
+coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-lifecycleRuntimeKtx = "2.9.2"
-activityCompose = "1.10.1"
-composeBom = "2025.07.00"
-coroutines = "1.10.2"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.06.00"
+coroutines = "1.11.0"
+profileinstaller = "1.4.1"
 timber = "5.0.1"
-hilt = "2.57"
-ksp = "2.2.0-2.0.2"
-pagingCompose = "3.3.6"
-coreSplashscreen = "1.0.1"
-navigationCompose = "2.9.3"
-hiltCompose = "1.2.0"
+hilt = "2.59.2"
+ksp = "2.3.9"
+pagingCompose = "3.5.0"
+concurrentFutures = "1.3.0"
+coreSplashscreen = "1.2.0"
+navigationCompose = "2.9.8"
+hiltCompose = "1.3.0"
 detekt = "1.23.8"
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
-roomVersion = "2.7.2"
-gson = "2.13.1"
+roomVersion = "2.8.4"
+gson = "2.14.0"
 retrofit = "3.0.0"
-okhttp = "5.1.0"
-ktlint = "13.0.0"
-lottie = "6.6.7"
-datastore = "1.1.7"
-mapbox = "11.11.0"
+okhttp = "5.4.0"
+ktlint = "14.2.0"
+lottie = "6.7.1"
+datastore = "1.2.1"
+mapbox = "11.24.3"
+glance = "1.1.1"
+coil = "2.7.0"
+mockk = "1.14.11"
+turbine = "1.2.1"
+robolectric = "4.16.1"
+roborazzi = "1.64.0"
+archCoreTesting = "2.2.0"
+coroutinesTest = "1.11.0"
+sentry = "8.44.0"
+leakCanary = "2.14"
+chucker = "4.3.1"
+sonar = "7.3.1.8318"
+# Firebase
+firebaseBom = "34.15.0"
+googleServices = "4.5.0"
+crashlyticsGradle = "3.0.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -44,6 +63,8 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 jetbrains-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -57,6 +78,8 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.r
 hilt-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltCompose" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime", version.ref = "pagingCompose" }
+concurrent-futures = { module = "androidx.concurrent:concurrent-futures", version.ref = "concurrentFutures" }
+concurrent-futures-ktx = { module = "androidx.concurrent:concurrent-futures-ktx", version.ref = "concurrentFutures" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycleRuntimeKtx" }
@@ -70,6 +93,40 @@ lottie-android = { group = "com.airbnb.android", name = "lottie-compose", versio
 datastore-android = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 mapbox = { group = "com.mapbox.maps", name = "android", version.ref = "mapbox" }
 mapbox-compose = { group = "com.mapbox.extension", name = "maps-compose", version.ref = "mapbox" }
+androidx-glance = { module = "androidx.glance:glance", version.ref = "glance" }
+androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
+# Testing
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+# Monitoring
+sentry-android = { group = "io.sentry", name = "sentry-android", version.ref = "sentry" }
+sentry-okhttp = { group = "io.sentry", name = "sentry-okhttp", version.ref = "sentry" }
+sentry-android-timber = { group = "io.sentry", name = "sentry-android-timber", version.ref = "sentry" }
+leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
+chucker-debug = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
+chucker-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
+
+# Firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-crashlytics-ndk = { group = "com.google.firebase", name = "firebase-crashlytics-ndk" }
+firebase-perf = { group = "com.google.firebase", name = "firebase-perf" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config" }
+
+kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
+
+# Images
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -81,3 +138,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 room = { id = "androidx.room", version.ref = "roomVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsGradle" }
+sonar = { id = "org.sonarqube", version.ref = "sonar" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

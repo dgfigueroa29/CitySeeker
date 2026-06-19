@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-
 /**
  * Represents the UI state of the Detail screen, holding information about loading status, errors,
  * and the details of a specific city.
@@ -25,9 +24,10 @@ class DetailState(
     val loadingState: StateFlow<Boolean> = _loadingState.asStateFlow(),
     private val _errorState: MutableStateFlow<String> = MutableStateFlow(""),
     val errorState: StateFlow<String> = _errorState.asStateFlow(),
-    private val _city: MutableStateFlow<CityModel> = MutableStateFlow(
-        CityModel()
-    ),
+    private val _city: MutableStateFlow<CityModel> =
+        MutableStateFlow(
+            CityModel(),
+        ),
     val city: StateFlow<CityModel> = _city.asStateFlow(),
 ) {
     fun setCity(city: CityModel) {

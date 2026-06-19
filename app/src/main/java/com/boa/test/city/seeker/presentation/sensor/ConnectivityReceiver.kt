@@ -15,8 +15,13 @@ import android.net.NetworkCapabilities
  * status changes. It receives a Boolean indicating whether the device is connected to the
  * internet (true) or not (false).
  */
-class ConnectivityReceiver(private val onNetworkChange: (Boolean) -> Unit) : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+class ConnectivityReceiver(
+    private val onNetworkChange: (Boolean) -> Unit,
+) : BroadcastReceiver() {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 

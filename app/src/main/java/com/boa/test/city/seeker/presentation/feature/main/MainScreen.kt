@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.boa.test.city.seeker.presentation.component.isLandscape
+import com.boa.test.city.seeker.presentation.component.ConsentDialog
 import com.boa.test.city.seeker.presentation.feature.city.detail.DetailScreen
 import com.boa.test.city.seeker.presentation.feature.city.list.ListScreen
 import com.boa.test.city.seeker.presentation.navigation.Screen
@@ -25,10 +28,22 @@ import com.boa.test.city.seeker.presentation.navigation.Screen
  * @param navController The NavHostController used for navigation.
  */
 @Composable
-fun MainScreen(navController: NavHostController? = null) {
-    val landscape = isLandscape()
+fun MainScreen(
+    navController: NavHostController? = null,
+    viewModel: MainViewModel = hiltViewModel(),
+) {
+    val showConsent by viewModel.showConsent.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isExpanded = configuration.screenWidthDp >= 600
 
-    if (landscape) {
+    if (showConsent) {
+        ConsentDialog(
+            onAccept = { viewModel.acceptConsent() },
+            onDecline = { viewModel.declineConsent() },
+        )
+    }
+
+    if (isExpanded) {
         LandscapeLayout(navController)
     } else {
         PortraitLayout(navController)
@@ -44,9 +59,11 @@ fun MainScreen(navController: NavHostController? = null) {
 @Composable
 fun PortraitLayout(navController: NavHostController? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
-        ListScreen(onCityClick = {
-            navController?.navigate("${Screen.MAP.endpoint}/${it}")
-        })
+        ListScreen(
+            onCityClick = {
+                navController?.navigate("${Screen.MAP.endpoint}/$it")
+            },
+        )
     }
 }
 
@@ -61,19 +78,23 @@ fun LandscapeLayout(navController: NavHostController? = null) {
     var cityId by rememberSaveable { mutableStateOf("0") }
     Row(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
         ) {
-            ListScreen(onCityClick = {
-                cityId = it
-            })
+            ListScreen(
+                onCityClick = {
+                    cityId = it
+                },
+            )
         }
 
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
         ) {
             DetailScreen(navController = navController, cityId = cityId)
         }

@@ -1,187 +1,289 @@
 package com.boa.test.city.seeker.presentation.feature.city.list
 
+import app.cash.turbine.test
+import com.boa.test.city.seeker.common.analytics.AnalyticsService
+import com.boa.test.city.seeker.common.analytics.PerformanceMonitor
+import com.boa.test.city.seeker.domain.model.CityModel
+import com.boa.test.city.seeker.domain.model.UiStateModel
+import com.boa.test.city.seeker.domain.usecase.SearchCityUseCase
+import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ListViewModelTest {
+    private lateinit var viewModel: ListViewModel
+    private lateinit var searchCityUseCase: SearchCityUseCase
+    private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private val analyticsService: AnalyticsService = mockk(relaxed = true)
+    private val performanceMonitor: PerformanceMonitor = mockk(relaxed = true)
+    private val testDispatcher = UnconfinedTestDispatcher()
 
-    @Test
-    fun `getListState initial state`() {
-        // Verify that getListState returns the default/initial state of ListState
-        // when no operations have been performed.
-        // TODO implement test
+    private val testCities =
+        listOf(
+            CityModel(1, "Denver", "US", 39.7392, -104.9903),
+            CityModel(2, "Dallas", "US", 32.7767, -96.7970),
+        )
+
+    @Before
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        searchCityUseCase = mockk()
+        toggleFavoriteUseCase = mockk()
+        viewModel = ListViewModel(searchCityUseCase, toggleFavoriteUseCase, analyticsService, performanceMonitor)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun `getListState after operations`() {
-        // Verify that getListState reflects the changes made to ListState after calling other
-        // methods like refreshQuery, refreshError, etc.
-        // TODO implement test
+    fun `refreshQuery should update query state`() {
+        // Given
+        coEvery {
+            searchCityUseCase(any(), any())
+        } returns flow { emit(UiStateModel.Success(testCities)) }
+
+        // When
+        viewModel.refreshQuery("Denver")
+
+        // Then
+        assertEquals("Denver", viewModel.listState.queryState.value)
     }
 
     @Test
-    fun `updateConnectionStatus to connected`() {
-        // Call updateConnectionStatus with isConnected = true.
-        // Verify that listState's error message is cleared.
-        // TODO implement test
+    fun `refreshQuery should update city list`() {
+        // Given
+        coEvery {
+            searchCityUseCase("Denver", false)
+        } returns
+            flow {
+                emit(UiStateModel.Loading(true))
+                emit(UiStateModel.Success(listOf(testCities.first())))
+            }
+
+        // When
+        viewModel.refreshQuery("Denver")
+
+        // Then
+        val cities = viewModel.listState.cityList.value
+        assertEquals(1, cities.size)
+        assertEquals("Denver", cities.first().name)
     }
 
     @Test
-    fun `updateConnectionStatus to disconnected`() {
-        // Call updateConnectionStatus with isConnected = false.
-        // Verify that listState's error message is set to the 'No data to display' message.
-        // TODO implement test
+    fun `toggleFavorite should call use case`() {
+        // Given
+        coEvery { toggleFavoriteUseCase("1") } returns Unit
+
+        // When
+        viewModel.toggleFavorite("1")
+
+        // Then
+        coVerify { toggleFavoriteUseCase("1") }
     }
 
     @Test
-    fun `updateConnectionStatus multiple calls`() {
-        // Call updateConnectionStatus multiple times with alternating true/false.
-        // Verify the error message is updated correctly each time.
-        // TODO implement test
+    fun `updateConnectionStatus to connected clears error`() {
+        // Given
+        viewModel.refreshError("No data")
+
+        // When
+        viewModel.updateConnectionStatus(true)
+
+        // Then
+        assertEquals("", viewModel.listState.errorState.value)
     }
 
     @Test
-    fun `toggleFavorite with valid cityId`() {
-        // Call toggleFavorite with a valid cityId.
-        // Verify that toggleFavoriteUseCase is called and listState.setFavorite is called with the
-        // same cityId.
-        // TODO implement test
+    fun `updateConnectionStatus to disconnected sets error`() {
+        // When
+        viewModel.updateConnectionStatus(false)
+
+        // Then
+        assertTrue(
+            viewModel.listState.errorState.value
+                .isNotBlank(),
+        )
     }
 
     @Test
-    fun `toggleFavorite with empty cityId`() {
-        // Call toggleFavorite with an empty string for cityId.
-        // Verify behavior (e.g., use case is still called, no crash).
-        // TODO implement test
+    fun `refreshError should update error state`() {
+        // When
+        viewModel.refreshError("Test error")
+
+        // Then
+        assertEquals("Test error", viewModel.listState.errorState.value)
     }
 
     @Test
-    fun `toggleFavorite with null cityId  if applicable `() {
-        // If the type system allows, test with a null cityId and verify
-        // behavior (likely a crash, or handled gracefully).
-        // TODO implement test
+    fun `refreshLoading should update loading state`() {
+        // When
+        viewModel.refreshLoading(true)
+
+        // Then
+        assertTrue(viewModel.listState.loadingState.value)
     }
 
     @Test
-    fun `toggleFavorite when use case throws exception`() {
-        // Mock toggleFavoriteUseCase to throw an exception.
-        // Verify that the ViewModel handles this (e.g., doesn't crash, maybe logs error).
-        // TODO implement test
+    fun `refreshFavoriteFilter should update filter and refresh query`() {
+        // Given
+        coEvery {
+            searchCityUseCase(any(), any())
+        } returns flow { emit(UiStateModel.Success(testCities)) }
+
+        // When
+        viewModel.refreshFavoriteFilter(true, "Denver")
+
+        // Then
+        assertTrue(viewModel.listState.favoriteFilterState.value)
     }
 
     @Test
-    fun `load initial state`() {
-        // Call load(). Verify that listState's loading flag is set to true and the query is
-        // cleared.
-        // TODO implement test
+    fun `refreshQuery with empty string should return all cities`() {
+        // Given
+        coEvery {
+            searchCityUseCase("", false)
+        } returns flow { emit(UiStateModel.Success(testCities)) }
+
+        // When
+        viewModel.refreshQuery("")
+
+        // Then
+        val cities = viewModel.listState.cityList.value
+        assertEquals(2, cities.size)
     }
 
     @Test
-    fun `refreshQuery with non empty string`() {
-        // Call refreshQuery with a non-empty string.
-        // Verify that listState's query is updated and getCities is called with the same query.
-        // TODO implement test
+    fun `refreshQuery with special characters should handle gracefully`() {
+        // Given
+        coEvery {
+            searchCityUseCase("@#\$%", false)
+        } returns flow { emit(UiStateModel.Success(emptyList())) }
+
+        // When
+        viewModel.refreshQuery("@#\$%")
+
+        // Then
+        val cities = viewModel.listState.cityList.value
+        assertEquals(0, cities.size)
     }
 
     @Test
-    fun `refreshQuery with empty string`() {
-        // Call refreshQuery with an empty string.
-        // Verify that listState's query is updated to empty and getCities is called
-        // with an empty string.
-        // TODO implement test
+    fun `refreshLoading with false should update loading state`() {
+        // When
+        viewModel.refreshLoading(false)
+
+        // Then
+        assertFalse(viewModel.listState.loadingState.value)
     }
 
     @Test
-    fun `refreshQuery with special characters`() {
-        // Call refreshQuery with a string containing special characters.
-        // Verify that listState's query is updated and getCities is called correctly.
-        // TODO implement test
+    fun `refreshError with empty message should clear error`() {
+        // Given
+        viewModel.refreshError("Some error")
+
+        // When
+        viewModel.refreshError("")
+
+        // Then
+        assertEquals("", viewModel.listState.errorState.value)
     }
 
     @Test
-    fun `refreshQuery when getCities successfully returns data`() {
-        // Mock searchCityUseCase to return a Resource with data and no error. 
-        // Verify listState.setList is called and loading is set to false.
-        // TODO implement test
+    fun `refreshFavoriteFilter with false and query should update filter`() {
+        // Given
+        coEvery {
+            searchCityUseCase("Denver", false)
+        } returns flow { emit(UiStateModel.Success(testCities)) }
+
+        // When
+        viewModel.refreshFavoriteFilter(false, "Denver")
+
+        // Then
+        assertFalse(viewModel.listState.favoriteFilterState.value)
     }
 
     @Test
-    fun `refreshQuery when getCities returns error`() {
-        // Mock searchCityUseCase to return a Resource with an error message and null data. 
-        // Verify refreshError is called and loading is set to false.
-        // TODO implement test
+    fun `refreshFavoriteFilter with true and empty query should update filter`() {
+        // Given
+        coEvery {
+            searchCityUseCase("", true)
+        } returns flow { emit(UiStateModel.Success(testCities)) }
+
+        // When
+        viewModel.refreshFavoriteFilter(true, "")
+
+        // Then
+        assertTrue(viewModel.listState.favoriteFilterState.value)
     }
 
     @Test
-    fun `refreshQuery when getCities returns data and error  unexpected `() {
-        // Mock searchCityUseCase to return a Resource with both data and an error message. 
-        // Verify how the ViewModel handles this potentially ambiguous
-        // state (e.g., prioritizes data, or error).
-        // TODO implement test
+    fun `refresh should load cities with current query`() {
+        // Given
+        coEvery { searchCityUseCase("", false) } returns
+            flow {
+                emit(UiStateModel.Loading(true))
+                emit(UiStateModel.Success(testCities))
+            }
+
+        // When
+        viewModel.refresh()
+
+        // Then
+        val cities = viewModel.listState.cityList.value
+        assertEquals(2, cities.size)
     }
 
     @Test
-    fun `refreshQuery when getCities is still loading`() {
-        // Mock searchCityUseCase to return a Resource indicating it's still loading. 
-        // Verify listState.isLoading remains true or is set appropriately.
-        // TODO implement test
-    }
+    fun `favoriteEvents should emit Added when toggling non-favorite city`() =
+        runTest {
+            // Given
+            coEvery { searchCityUseCase(any(), any()) } returns
+                flow { emit(UiStateModel.Success(testCities)) }
+            coEvery { toggleFavoriteUseCase("1") } returns Unit
+            viewModel.refreshQuery("")
+
+            // When / Then
+            viewModel.favoriteEvents.test {
+                viewModel.toggleFavorite("1")
+                val event = awaitItem()
+                assertEquals(FavoriteEvent.Added, event)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 
     @Test
-    fun `refreshError with non empty message`() {
-        // Call refreshError with a non-empty message.
-        // Verify that listState's error message is updated.
-        // TODO implement test
-    }
+    fun `favoriteEvents should emit Removed when toggling favorite city`() =
+        runTest {
+            // Given
+            val favoriteCity = testCities.first().copy(isFavorite = true)
+            coEvery { searchCityUseCase(any(), any()) } returns
+                flow { emit(UiStateModel.Success(listOf(favoriteCity))) }
+            coEvery { toggleFavoriteUseCase("1") } returns Unit
+            viewModel.refreshQuery("")
 
-    @Test
-    fun `refreshError with empty message`() {
-        // Call refreshError with an empty message.
-        // Verify that listState's error message is cleared.
-        // TODO implement test
-    }
-
-    @Test
-    fun `refreshLoading with true`() {
-        // Call refreshLoading(true).
-        // Verify that listState's loading flag is set to true.
-        // TODO implement test
-    }
-
-    @Test
-    fun `refreshLoading with false`() {
-        // Call refreshLoading(false).
-        // Verify that listState's loading flag is set to false.
-        // TODO implement test
-    }
-
-    @Test
-    fun `refreshFavoriteFilter withOnlyFavorites true  non empty query`() {
-        // Call refreshFavoriteFilter(true, "someQuery").
-        // Verify listState.setFavoriteFilter(true) is called and refreshQuery("someQuery")
-        // is called.
-        // TODO implement test
-    }
-
-    @Test
-    fun `refreshFavoriteFilter withOnlyFavorites false  non empty query`() {
-        // Call refreshFavoriteFilter(false, "someQuery").
-        // Verify listState.setFavoriteFilter(false) is called and refreshQuery("someQuery")
-        // is called.
-        // TODO implement test
-    }
-
-    @Test
-    fun `refreshFavoriteFilter withOnlyFavorites true  empty query`() {
-        // Call refreshFavoriteFilter(true, "").
-        // Verify listState.setFavoriteFilter(true) is called and refreshQuery("") is called.
-        // TODO implement test
-    }
-
-    @Test
-    fun `refreshFavoriteFilter interaction with getCities`() {
-        // Ensure that when refreshFavoriteFilter calls refreshQuery,
-        // the subsequent call to getCities uses the updated favoriteFilterState.value from listState.
-        // TODO implement test
-    }
-
+            // When / Then
+            viewModel.favoriteEvents.test {
+                viewModel.toggleFavorite("1")
+                val event = awaitItem()
+                assertEquals(FavoriteEvent.Removed, event)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 }

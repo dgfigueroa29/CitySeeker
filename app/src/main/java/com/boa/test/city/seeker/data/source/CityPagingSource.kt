@@ -6,23 +6,23 @@ import com.boa.test.city.seeker.domain.model.CityModel
 import timber.log.Timber
 
 /**
- * A [PagingSource] implementation for loading a predefined list of [CityModel] objects.
+ * A [PagingSource] implementation for loading [CityModel] objects with proper pagination.
  *
- * This PagingSource is designed to serve as an in-memory source for paging, providing data
- * from a fixed list of cities. It's suitable for scenarios where the entire dataset
- * is available upfront and does not require network or database operations for subsequent pages.
+ * This PagingSource efficiently handles large datasets (200k+ cities) by loading data
+ * in pages rather than all at once. Each page contains a configurable number of items.
  *
- * The paging is simulated using page numbers (Int) as keys. However, since the entire list
- * is provided at once in the `load` method, the concept of distinct pages loaded sequentially
- * is somewhat simplified in this implementation. The `nextKey` calculation will always suggest
- * the next page, but the `load` method will still return the entire list regardless of the key.
- *
- * @property cities The predefined list of [CityModel] objects to be paged.
+ * @property cities The complete list of [CityModel] objects to be paged.
+ * @property pageSize The number of items to load per page. Default is 50.
  */
 class CityPagingSource(
-    private val cities: List<CityModel>
-) :
-    PagingSource<Int, CityModel>() {
+    private val cities: List<CityModel>,
+    private val pageSize: Int = PAGE_SIZE,
+) : PagingSource<Int, CityModel>() {
+    companion object {
+        const val PAGE_SIZE = 50
+        const val INITIAL_PAGE = 0
+    }
+
     /**
      * Calculates the refresh key for the PagingSource.
      *
@@ -33,12 +33,11 @@ class CityPagingSource(
      * and the current scroll position.
      * @return The refresh key (typically an index) or `null` if no valid refresh key can be determined.
      */
-    override fun getRefreshKey(state: PagingState<Int, CityModel>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
+    override fun getRefreshKey(state: PagingState<Int, CityModel>): Int? =
+        state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
-    }
 
     /**
      * Loads a page of data from the predefined list of cities.
@@ -52,18 +51,34 @@ class CityPagingSource(
      *         On success, it returns a [LoadResult.Page] with the data, previous key, and next key.
      *         On failure, it returns a [LoadResult.Error] with the exception.
      */
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CityModel> {
-        return try {
-            val page = params.key ?: 1
-            val cities = cities
-            LoadResult.Page(
-                data = cities,
-                prevKey = if (page == 1) null else page - 1,
-                nextKey = if (cities.isEmpty()) null else page + 1
-            )
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CityModel> =
+        try {
+            val page = params.key ?: INITIAL_PAGE
+            val startIndex = page * pageSize
+            val endIndex = minOf(startIndex + pageSize, cities.size)
+
+            if (startIndex >= cities.size) {
+                LoadResult.Page(
+                    data = emptyList(),
+                    prevKey = if (page == INITIAL_PAGE) null else page - 1,
+                    nextKey = null,
+                )
+            } else {
+                LoadResult.Page(
+                    data = cities.subList(startIndex, endIndex),
+                    prevKey = if (page == INITIAL_PAGE) null else page - 1,
+                    nextKey = if (endIndex >= cities.size) null else page + 1,
+                )
+            }
         } catch (e: Exception) {
             Timber.e("Error loading cities: ${e.stackTraceToString()}")
             LoadResult.Error(e)
         }
-    }
+
+    /**
+     * Returns the total number of items in the dataset.
+     *
+     * @return The total number of cities.
+     */
+    fun getItemCount(): Int = cities.size
 }

@@ -31,7 +31,10 @@ interface CityRepository {
      * @param withOnlyFavorites A boolean indicating whether to filter the results to include only favorite cities.
      * @return A list of [CityModel] objects that match the query and the favorite filter.
      */
-    suspend fun searchCities(query: String, withOnlyFavorites: Boolean): List<CityModel>
+    suspend fun searchCities(
+        query: String,
+        withOnlyFavorites: Boolean,
+    ): List<CityModel>
 
     /**
      * Retrieves a city by its ID.

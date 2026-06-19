@@ -1,29 +1,65 @@
 package com.boa.test.city.seeker.presentation.feature.city.detail
 
+import android.content.Context
+import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
+import com.boa.test.city.seeker.presentation.component.CityImage
+import com.boa.test.city.seeker.presentation.component.CityScatterPlot
+import com.boa.test.city.seeker.presentation.component.ErrorState
 import com.boa.test.city.seeker.presentation.component.LoadingIndicator
-import com.boa.test.city.seeker.presentation.component.OfflineIndicator
+import com.boa.test.city.seeker.presentation.component.SuccessSnackbar
 import com.boa.test.city.seeker.presentation.component.isLandscape
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
+import com.boa.test.city.seeker.presentation.feature.city.list.FavoriteEvent
 import com.boa.test.city.seeker.presentation.ui.theme.STRING_PRIMARY_DARK
 import com.boa.test.city.seeker.presentation.ui.theme.STRING_WHITE_COLOR
+import com.mapbox.common.MapboxOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapInitOptions
@@ -34,19 +70,12 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
 import com.mapbox.maps.plugin.scalebar.scalebar
+import kotlinx.coroutines.launch
 
 private const val MAP_DEFAULT_ZOOM = 9.0
 
-/**
- * Displays the detail screen for a specific city.
- *
- * This screen shows information about a city, including its location on a map.
- * It also allows the user to toggle the city as a favorite.
- *
- * @param navController The NavHostController for navigation.
- * @param viewModel The DetailViewModel for managing the screen's state.
- * @param cityId The ID of the city to display.
- */
+private enum class DetailContentState { Loading, Error, Content }
+
 @Composable
 fun DetailScreen(
     navController: NavHostController? = null,
@@ -55,111 +84,246 @@ fun DetailScreen(
 ) {
     val loadingState = viewModel.detailState.loadingState.collectAsState()
     val errorState = viewModel.detailState.errorState.collectAsState()
+    val city = viewModel.detailState.city.collectAsState()
     val id = cityId?.toLongOrNull() ?: 0L
-
-    // Show loading indicator while fetching data
     val isLoading = loadingState.value
-    LoadingIndicator(isLoading)
+    val isOffline = errorState.value.isNotBlank()
+    val isOnline = rememberIsOnline()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val addedText = stringResource(R.string.added_to_favorites)
+    val removedText = stringResource(R.string.removed_from_favorites)
+    val undoText = stringResource(R.string.undo)
 
     LaunchedEffect(id) {
         viewModel.getCity(cityId = id)
     }
 
-    // Display error dialog if needed
-    val isOffline = errorState.value.isNotBlank()
-    OfflineIndicator(isOffline)
-    val city = viewModel.detailState.city.collectAsState().value
-    val point = Point.fromLngLat(city.longitude, city.latitude)
-    Scaffold { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            MapHeader(
-                city = city,
-                navController = navController,
-                onToggleFavorite = {
-                    viewModel.toggleFavorite(it)
-                })
-            MapContent(point)
+    LaunchedEffect(Unit) {
+        viewModel.favoriteEvents.collect { event ->
+            val message =
+                when (event) {
+                    FavoriteEvent.Added -> addedText
+                    FavoriteEvent.Removed -> removedText
+                }
+            val result =
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        actionLabel = undoText,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+            result.invokeOnCompletion {
+                if (it == null) {
+                    viewModel.toggleFavorite(city.value.id.toString())
+                }
+            }
+        }
+    }
+
+    val contentState by remember(isLoading, isOffline, city.value.id) {
+        derivedStateOf {
+            when {
+                isOffline -> DetailContentState.Error
+                isLoading || city.value.id == 0L -> DetailContentState.Loading
+                else -> DetailContentState.Content
+            }
+        }
+    }
+
+    AnimatedContent(
+        targetState = contentState,
+        transitionSpec = {
+            fadeIn() + slideInVertically() togetherWith
+                fadeOut() + slideOutVertically()
+        },
+        label = "detail_content",
+    ) { state ->
+        when (state) {
+            DetailContentState.Loading -> LoadingIndicator(isLoading = true)
+            DetailContentState.Error ->
+                ErrorState(
+                    message = errorState.value,
+                    onRetry = { viewModel.getCity(cityId = id) },
+                )
+
+            DetailContentState.Content -> {
+                Scaffold(
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState) { data ->
+                            SuccessSnackbar(snackbarData = data)
+                        }
+                    },
+                ) { paddingValues ->
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                    ) {
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            CityImage(
+                                imageUrl = city.value.imageUrl,
+                                cityName = city.value.name,
+                                size = 200.dp,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                            )
+                            DetailHeader(
+                                city = city.value,
+                                navController = navController,
+                                onToggleFavorite = { viewModel.toggleFavorite(it) },
+                            )
+                        }
+                        val point = Point.fromLngLat(city.value.longitude, city.value.latitude)
+                        if (isOnline) {
+                            MapContent(point)
+                        } else {
+                            OfflineMapFallback(city.value)
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-/**
- * Displays the map with a marker at the given point.
- *
- * @param point The point to display on the map.
- */
+@Composable
+private fun OfflineMapFallback(city: CityModel) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        CityScatterPlot(
+            selectedCity = city,
+            cities = listOf(city),
+            onCityClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+        Text(
+            text = stringResource(R.string.map_offline_notice),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp),
+        )
+    }
+}
+
 @Composable
 private fun MapContent(point: Point) {
-    val cameraOptions = CameraOptions.Builder()
-        .center(point)
-        .zoom(MAP_DEFAULT_ZOOM)
-        .build()
+    val cameraOptions =
+        CameraOptions
+            .Builder()
+            .center(point)
+            .zoom(MAP_DEFAULT_ZOOM)
+            .build()
     val context = LocalContext.current
-    val mapView = remember {
-        MapView(context, MapInitOptions(context))
-    }
+    val mapView =
+        remember {
+            MapboxOptions.accessToken = com.boa.test.city.seeker.BuildConfig.MAPBOX_TOKEN
+            MapView(context, MapInitOptions(context))
+        }
 
-    val mapStyle = if (isSystemInDarkTheme()) {
-        Style.DARK
-    } else {
-        Style.LIGHT
-    }
+    val mapStyle = if (isSystemInDarkTheme()) Style.DARK else Style.LIGHT
+    val mapDescription = stringResource(R.string.map_view)
 
     Row {
         AndroidView(
             factory = { mapView },
-            modifier = Modifier.wrapContentSize(),
+            modifier =
+                Modifier
+                    .wrapContentSize()
+                    .semantics { contentDescription = mapDescription },
             update = { mapView ->
                 @Suppress("DEPRECATION")
                 mapView.mapboxMap.loadStyleUri(mapStyle) {
                     mapView.scalebar.enabled = false
                     mapView.mapboxMap.setCamera(cameraOptions)
                     val annotationApi = mapView.annotations
-                    val circleAnnotationManager = annotationApi.createCircleAnnotationManager(
-                        AnnotationConfig()
-                    )
-                    val circleAnnotationOptions: CircleAnnotationOptions = CircleAnnotationOptions()
-                        .withPoint(point)
-                        .withCircleRadius(8.0)
-                        .withCircleColor(STRING_PRIMARY_DARK)
-                        .withCircleStrokeWidth(2.0)
-                        .withCircleStrokeColor(STRING_WHITE_COLOR)
+                    val circleAnnotationManager = annotationApi.createCircleAnnotationManager(AnnotationConfig())
+                    val circleAnnotationOptions =
+                        CircleAnnotationOptions()
+                            .withPoint(point)
+                            .withCircleRadius(8.0)
+                            .withCircleColor(STRING_PRIMARY_DARK)
+                            .withCircleStrokeWidth(2.0)
+                            .withCircleStrokeColor(STRING_WHITE_COLOR)
                     circleAnnotationManager.create(circleAnnotationOptions)
                 }
-            }
+            },
         )
     }
 }
 
-/**
- * Displays the header for the map screen, which includes the city information and navigation
- * controls.
- * This header is only shown in portrait mode.
- *
- * @param city The [CityModel] to display information for.
- * @param navController The [NavHostController] for navigation.
- * @param onToggleFavorite A lambda function to be invoked when the favorite button is clicked.
- *                         It takes the city ID as a [String] parameter.
- */
 @Composable
-private fun MapHeader(
+private fun DetailHeader(
     city: CityModel,
     navController: NavHostController?,
-    onToggleFavorite: (String) -> Unit
+    onToggleFavorite: (String) -> Unit,
 ) {
+    val context = LocalContext.current
+
     if (!isLandscape()) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
             CityItem(
                 city = city,
                 canGoBack = true,
                 onFavoriteClick = onToggleFavorite,
-                onCityClick = {
-                    navController?.popBackStack()
-                })
+                onCityClick = { navController?.popBackStack() },
+                modifier = Modifier.weight(1f),
+            )
+            ShareButton(context, city)
         }
+    }
+}
+
+@Composable
+private fun ShareButton(
+    context: android.content.Context,
+    city: CityModel,
+) {
+    val shareIntent =
+        remember(city) {
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "${city.getTitle()}\n\n${city.getSubtitle()}\n\ncityseeker://city/${city.id}",
+                )
+            }
+        }
+
+    androidx.compose.material3.IconButton(
+        onClick = {
+            context.startActivity(
+                Intent.createChooser(shareIntent, context.getString(R.string.share_city)),
+            )
+        },
+    ) {
+        androidx.compose.material3.Icon(
+            imageVector = Icons.Filled.Share,
+            contentDescription = stringResource(R.string.share_city),
+            tint = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+@Composable
+private fun rememberIsOnline(): Boolean {
+    val context = LocalContext.current
+    return remember {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = cm.activeNetwork
+        val caps = cm.getNetworkCapabilities(network)
+        caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 }

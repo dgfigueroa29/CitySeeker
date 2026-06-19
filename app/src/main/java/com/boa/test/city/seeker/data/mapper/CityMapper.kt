@@ -22,11 +22,13 @@ class CityMapper : BaseMapper<CityEntity, CityModel>() {
      * @param input The [CityEntity] object to be mapped.
      * @return A new [CityModel] object containing the mapped data.
      */
-    override fun map(input: CityEntity): CityModel = CityModel(
-        id = input.id,
-        name = input.name,
-        country = input.country,
-        latitude = input.latitude,
-        longitude = input.longitude
-    )
+    override fun map(input: CityEntity): CityModel =
+        CityModel(
+            id = input.id,
+            name = input.name,
+            country = input.country,
+            latitude = input.latitude,
+            longitude = input.longitude,
+            imageUrl = input.imageUrl,
+        )
 }

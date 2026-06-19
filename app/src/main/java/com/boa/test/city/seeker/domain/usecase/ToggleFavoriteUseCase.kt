@@ -13,7 +13,11 @@ import javax.inject.Inject
  * @property preferenceRepository The repository responsible for managing user preferences,
  *                                including favorite cities.
  */
-class ToggleFavoriteUseCase @Inject constructor(private val preferenceRepository: PreferenceRepository) {
+class ToggleFavoriteUseCase
+@Inject
+constructor(
+    private val preferenceRepository: PreferenceRepository,
+) {
     /**
      * Toggles the favorite status of a city.
      *

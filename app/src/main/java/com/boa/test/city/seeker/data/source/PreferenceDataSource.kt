@@ -1,9 +1,8 @@
 package com.boa.test.city.seeker.data.source
 
 /**
- * Represents a repository for managing preferences.
- * This interface defines methods for adding, removing, retrieving,
- * and checking the existence of string values in preferences.
+ * Represents a data source for managing app preferences via DataStore.
+ * Supports favorite city IDs (string set) and onboarding state (boolean).
  */
 interface PreferenceDataSource {
     /**
@@ -28,4 +27,12 @@ interface PreferenceDataSource {
      * @return `true` if the string value exists, `false` otherwise.
      */
     suspend fun hasString(cityId: String): Boolean
+
+    suspend fun markOnboardingCompleted()
+
+    suspend fun isOnboardingCompleted(): Boolean
+
+    suspend fun setAnalyticsConsent(granted: Boolean)
+
+    suspend fun getAnalyticsConsent(): Boolean
 }

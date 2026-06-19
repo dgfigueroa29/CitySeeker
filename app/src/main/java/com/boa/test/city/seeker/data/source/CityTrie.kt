@@ -24,7 +24,7 @@ class CityTrie {
      */
     private data class Node(
         val children: MutableMap<Char, Node> = mutableMapOf(),
-        var cities: MutableSet<CityModel> = mutableSetOf()
+        var cities: MutableSet<CityModel> = mutableSetOf(),
     )
 
     private val root = Node()
@@ -36,6 +36,9 @@ class CityTrie {
      * @param city The [CityModel] to insert.
      */
     fun insert(city: CityModel) {
+        if (root.cities.contains(city).not()) {
+            root.cities.add(city)
+        }
         insertWord(city.name, city)
         insertWord(city.country, city)
     }
@@ -51,9 +54,12 @@ class CityTrie {
      * @param word The word (e.g., city name or country name) to insert into the trie.
      * @param city The [CityModel] to associate with the word.
      */
-    private fun insertWord(word: String, city: CityModel) {
+    private fun insertWord(
+        word: String,
+        city: CityModel,
+    ) {
         var current = root
-        word.forEach { char ->
+        word.lowercase().forEach { char ->
             current = current.children.getOrPut(char) { Node() }
 
             if (current.cities.contains(city).not()) {

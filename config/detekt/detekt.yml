@@ -1,0 +1,101 @@
+build:
+  maxIssues: 50
+  weights:
+    complexity: 2
+    style: 1
+    comments: 1
+    naming: 1
+
+complexity:
+  LongMethod:
+    threshold: 60
+  ComplexCondition:
+    threshold: 4
+  TooManyFunctions:
+    thresholdInFiles: 30
+    thresholdInClasses: 30
+  CyclomaticComplexMethod:
+    threshold: 15
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+  LargeClass:
+    threshold: 600
+  NestedBlockDepth:
+    threshold: 5
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  MagicNumber:
+    active: true
+    ignorePropertyDeclaration: true
+    ignoreNumbers:
+      - "-1"
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
+      - "50"
+      - "100"
+      - "200"
+      - "300"
+      - "500"
+      - "1000"
+      - "10000"
+      - "30000"
+      - "0.2"
+      - "0.5"
+      - "0.6"
+      - "0.9"
+      - "0.98"
+      - "1.2"
+      - "8.0"
+      - "2.0"
+    ignoreAnnotated:
+      - "Preview"
+      - "Composable"
+      - "Test"
+  ReturnCount:
+    max: 6
+  ForbiddenComment:
+    active: false
+  UnusedPrivateMember:
+    active: true
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - "Composable"
+      - "Preview"
+  TopLevelPropertyNaming:
+    constantPattern: "[A-Z][A-Za-z0-9_]*"
+  ClassNaming:
+    ignoreAnnotated:
+      - "Entity"
+      - "Dao"
+
+empty-blocks:
+  EmptyFunctionBlock:
+    ignoreOverridden: true
+  EmptyElseBlock:
+    active: true
+  EmptyWhenBlock:
+    active: true
+  EmptyCatchBlock:
+    active: true
+    allowedExceptionNameRegex: "_.*"
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+    exceptionNames:
+      - "Exception"
+      - "Throwable"

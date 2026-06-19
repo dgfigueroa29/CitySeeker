@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-
 /**
  * Represents the mutable state of the ListScreen UI.
  *
@@ -37,13 +36,14 @@ data class ListState(
     val textFilterState: StateFlow<String> = _textFilterState.asStateFlow(),
     private val _errorState: MutableStateFlow<String> = MutableStateFlow(""),
     val errorState: StateFlow<String> = _errorState.asStateFlow(),
-    private val _cityList: MutableStateFlow<List<CityModel>> = MutableStateFlow(
-        emptyList()
-    ),
+    private val _cityList: MutableStateFlow<List<CityModel>> =
+        MutableStateFlow(
+            emptyList(),
+        ),
     val cityList: StateFlow<List<CityModel>> = _cityList.asStateFlow(),
     private val _listAction: MutableStateFlow<ListAction> = MutableStateFlow(ListAction.OnClick),
     private val _queryState: MutableStateFlow<String> = MutableStateFlow(""),
-    val queryState: StateFlow<String> = _errorState.asStateFlow()
+    val queryState: StateFlow<String> = _queryState.asStateFlow(),
 ) {
     fun setList(data: List<CityModel>) {
         this._cityList.value = data
@@ -70,13 +70,14 @@ data class ListState(
     }
 
     fun setFavorite(cityId: String) {
-        this._cityList.value = this._cityList.value.map {
-            if (it.id.toString() == cityId) {
-                it.copy(isFavorite = !it.isFavorite)
-            } else {
-                it
+        this._cityList.value =
+            this._cityList.value.map {
+                if (it.id.toString() == cityId) {
+                    it.copy(isFavorite = !it.isFavorite)
+                } else {
+                    it
+                }
             }
-        }
     }
 }
 

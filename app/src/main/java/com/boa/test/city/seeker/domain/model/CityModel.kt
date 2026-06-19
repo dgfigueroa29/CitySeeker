@@ -16,7 +16,8 @@ data class CityModel(
     val country: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    var isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val imageUrl: String = "",
 ) {
     /**
      * Returns a formatted string combining the city name and country.

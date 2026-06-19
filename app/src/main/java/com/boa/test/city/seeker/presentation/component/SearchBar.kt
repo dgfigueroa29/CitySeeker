@@ -1,6 +1,11 @@
 package com.boa.test.city.seeker.presentation.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -32,14 +37,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.boa.test.city.seeker.R
 
+private val ColorConverter =
+    TwoWayConverter<Color, AnimationVector4D>(
+        convertToVector = { color -> AnimationVector4D(color.red, color.green, color.blue, color.alpha) },
+        convertFromVector = { vector -> Color(vector.v1, vector.v2, vector.v3, vector.v4) },
+    )
 
 /**
  * A customizable search bar composable that allows users to input text and trigger a search.
@@ -54,40 +67,61 @@ import com.boa.test.city.seeker.R
 fun SearchBar(
     modifier: Modifier = Modifier,
     searchQuery: String = "",
-    onSearchQueryChanged: (String) -> Unit
+    onSearchQueryChanged: (String) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
-    val keyboardOptions = KeyboardOptions(
-        imeAction = ImeAction.Search,
-        keyboardType = KeyboardType.Text,
+    val keyboardOptions =
+        KeyboardOptions(
+            imeAction = ImeAction.Search,
+            keyboardType = KeyboardType.Text,
+        )
+    val searchDescription = stringResource(R.string.search_cities)
+
+    val borderColor by animateValueAsState(
+        targetValue =
+            if (focused) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            },
+        typeConverter = ColorConverter,
+        animationSpec = tween(200),
+        label = "search_border_color",
     )
+
+    val elevation by animateDpAsState(
+        targetValue = if (focused) 2.dp else 0.dp,
+        animationSpec = tween(200),
+        label = "search_elevation",
+    )
+
     Surface(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    contentDescription = searchDescription
+                },
         shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (focused)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-        ),
-        tonalElevation = if (focused) 2.dp else 0.dp
+        border = BorderStroke(width = 1.dp, color = borderColor),
+        tonalElevation = elevation,
     ) {
         BasicTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChanged,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface
-            ),
+            textStyle =
+                MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                ),
             keyboardOptions = keyboardOptions,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { focused = it.isFocused },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focused = it.isFocused },
             decorationBox = { innerTextField ->
                 SearchBarContent(searchQuery, innerTextField, onSearchQueryChanged)
-            }
+            },
         )
     }
 }
@@ -96,18 +130,19 @@ fun SearchBar(
 private fun SearchBarContent(
     searchQuery: String,
     innerTextField: @Composable (() -> Unit),
-    onSearchQueryChanged: (String) -> Unit
+    onSearchQueryChanged: (String) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .fillMaxWidth()
+        modifier =
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
     ) {
         Icon(
             imageVector = Icons.Default.Search,
             contentDescription = stringResource(R.string.search),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Box(modifier = Modifier.weight(1f)) {
@@ -115,7 +150,7 @@ private fun SearchBarContent(
                 Text(
                     text = stringResource(R.string.search_cities),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             innerTextField()
@@ -123,16 +158,16 @@ private fun SearchBarContent(
         AnimatedVisibility(
             visible = searchQuery.isNotEmpty(),
             enter = fadeIn() + scaleIn(),
-            exit = fadeOut() + scaleOut()
+            exit = fadeOut() + scaleOut(),
         ) {
             IconButton(
                 onClick = { onSearchQueryChanged("") },
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = stringResource(R.string.clear_search),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -145,9 +180,10 @@ fun SearchBarEmptyPreview() {
     SearchBar(
         searchQuery = "",
         onSearchQueryChanged = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
     )
 }
 
@@ -157,8 +193,9 @@ fun SearchBarPreview() {
     SearchBar(
         searchQuery = "Test",
         onSearchQueryChanged = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
     )
 }

@@ -27,11 +27,14 @@ import javax.inject.Inject
  * @property cityDatabase The local Room database for storing city data.
  * @property cityApi The Retrofit API service for fetching city data from the network.
  */
-class CityDataSourceImpl @Inject constructor(
+class CityDataSourceImpl
+@Inject
+constructor(
     private val context: Context,
     private val cityDatabase: CityDatabase,
     private val cityApi: CityApi,
-    private val preferenceDataSource: PreferenceDataSource
+    private val preferenceDataSource: PreferenceDataSource,
+    private val cityMapper: CityMapper,
 ) : CityDataSource {
     /**
      * Retrieves all cities.
@@ -93,7 +96,7 @@ class CityDataSourceImpl @Inject constructor(
     @Suppress("NestedBlockDepth")
     private suspend fun downloadCities(
         tempFile: File,
-        cities: List<CityEntity>
+        cities: List<CityEntity>,
     ): List<CityEntity> {
         val response = cityApi.getAllCities()
         return if (response.isSuccessful) {
@@ -138,11 +141,14 @@ class CityDataSourceImpl @Inject constructor(
      * @return A list of distinct [CityEntity] objects matching the search criteria.
      */
     override suspend fun searchCities(query: String): List<CityEntity> {
-        val cities = (if (query.isNotEmpty()) {
-            cityDatabase.cityDao().searchCities(query)
-        } else {
-            cityDatabase.cityDao().getAll()
-        }).distinct().take(LIMIT)
+        val cities =
+            (
+                if (query.isNotEmpty()) {
+                    cityDatabase.cityDao().searchCities(query)
+                } else {
+                    cityDatabase.cityDao().getAll()
+                }
+                ).distinct().take(LIMIT)
         return cities
     }
 
@@ -159,7 +165,10 @@ class CityDataSourceImpl @Inject constructor(
      * @return A [CityPagingSource] containing the search results.
      * @throws Exception If an error occurs during the process.
      */
-    override suspend fun pagingSource(query: String, trie: CityTrie): CityPagingSource {
+    override suspend fun pagingSource(
+        query: String,
+        trie: OptimizedCityTrie,
+    ): CityPagingSource {
         try {
             return CityPagingSource(mapCities(query, trie))
         } catch (e: Exception) {
@@ -181,16 +190,24 @@ class CityDataSourceImpl @Inject constructor(
      * @return A distinct list of [CityModel] objects representing the search results.
      * @throws Exception If an error occurs during the process.
      */
-    override suspend fun mapCities(query: String, trie: CityTrie): List<CityModel> {
+    override suspend fun mapCities(
+        query: String,
+        trie: OptimizedCityTrie,
+    ): List<CityModel> {
         try {
             val favorites = preferenceDataSource.getSetString()
-            var cities = trie.search(query)
-                .map { it.copy(isFavorite = favorites.contains(it.id.toString())) }
-            cities = (if (query.isBlank() && cities.isEmpty()) {
-                CityMapper().mapAll(getAllCities())
-            } else {
-                CityMapper().mapAll(searchCities(query))
-            }).distinct()
+            var cities =
+                trie
+                    .search(query)
+                    .map { it.copy(isFavorite = favorites.contains(it.id.toString())) }
+            cities =
+                (
+                    if (query.isBlank() && cities.isEmpty()) {
+                        cityMapper.mapAll(getAllCities())
+                    } else {
+                        cityMapper.mapAll(searchCities(query))
+                    }
+                    ).distinct()
 
             return cities.map { it.copy(isFavorite = favorites.contains(it.id.toString())) }
         } catch (e: Exception) {
@@ -205,14 +222,13 @@ class CityDataSourceImpl @Inject constructor(
      * @param id The unique identifier of the city.
      * @return The [CityEntity] if found, or `null` if an error occurs or the city is not found.
      */
-    override suspend fun getCityById(id: Long): CityEntity? {
-        return try {
+    override suspend fun getCityById(id: Long): CityEntity? =
+        try {
             cityDatabase.cityDao().getCityById(id)
         } catch (e: Exception) {
             Timber.e("Error getting by id: ${e.stackTraceToString()}")
             null
         }
-    }
 
     /**
      * Processes a JSON file containing city data and inserts it into the database in batches.
@@ -300,7 +316,7 @@ class CityDataSourceImpl @Inject constructor(
             name = name,
             country = country,
             latitude = latitude,
-            longitude = longitude
+            longitude = longitude,
         )
     }
 

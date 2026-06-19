@@ -22,8 +22,10 @@ import javax.inject.Inject
  * @property cityRepository The repository responsible for city data operations.
  */
 @Suppress("TooGenericExceptionCaught")
-class GetCityByIdUseCase @Inject constructor(
-    private val cityRepository: CityRepository
+class GetCityByIdUseCase
+@Inject
+constructor(
+    private val cityRepository: CityRepository,
 ) {
     /**
      * Invokes the use case to retrieve a city by its ID.
@@ -35,19 +37,20 @@ class GetCityByIdUseCase @Inject constructor(
      * @return A [Flow] of [UiStateModel] containing the [CityModel] if successful, or an error message.
      */
     @OptIn(FlowPreview::class)
-    operator fun invoke(id: Long): Flow<UiStateModel<CityModel>> = flow {
-        emit(UiStateModel.Loading(true))
-        cityRepository.getCityById(id).collect {
-            try {
-                emit(UiStateModel.Success(it))
-            } catch (e: Exception) {
-                Timber.e("Error getting city by id: ${e.stackTraceToString()}")
-                emit(UiStateModel.Error(e.message ?: "An unknown error occurred"))
+    operator fun invoke(id: Long): Flow<UiStateModel<CityModel>> =
+        flow {
+            emit(UiStateModel.Loading(true))
+            cityRepository.getCityById(id).collect {
+                try {
+                    emit(UiStateModel.Success(it))
+                } catch (e: Exception) {
+                    Timber.e("Error getting city by id: ${e.stackTraceToString()}")
+                    emit(UiStateModel.Error(e.message ?: "An unknown error occurred"))
+                }
+                emit(UiStateModel.Loading(false))
             }
-            emit(UiStateModel.Loading(false))
-        }
-    }.catch {
-        Timber.e("Error in flow getting city by id: ${it.stackTraceToString()}")
-        emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))
-    }.flowOn(Dispatchers.IO)
+        }.catch {
+            Timber.e("Error in flow getting city by id: ${it.stackTraceToString()}")
+            emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))
+        }.flowOn(Dispatchers.IO)
 }

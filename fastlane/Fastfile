@@ -1,0 +1,22 @@
+default_platform(:android)
+
+platform :android do
+  desc "Submit a new Beta Build to Firebase App Distribution"
+  lane :beta do
+    gradle(task: "clean assembleDebug")
+
+    # Optional: Add changelog
+    # changelog = prompt(text: "Changelog: ")
+
+    firebase_app_distribution(
+        app: ENV["FIREBASE_APP_ID"],
+        groups: "testers",
+        release_notes: "Bug fixes and performance improvements"
+    )
+  end
+
+  desc "Run all lints and tests"
+  lane :test do
+    gradle(task: "detekt ktlintCheck testDebugUnitTest")
+  end
+end

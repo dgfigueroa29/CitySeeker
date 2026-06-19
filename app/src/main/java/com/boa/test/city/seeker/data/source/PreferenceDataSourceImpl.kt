@@ -2,6 +2,7 @@ package com.boa.test.city.seeker.data.source
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,8 +19,11 @@ import javax.inject.Inject
  *
  * @property dataStore The [DataStore] instance used for persisting preferences.
  */
-class PreferenceDataSourceImpl @Inject constructor(private val dataStore: DataStore<Preferences>) :
-    PreferenceDataSource {
+class PreferenceDataSourceImpl
+@Inject
+constructor(
+    private val dataStore: DataStore<Preferences>,
+) : PreferenceDataSource {
     /**
      * Toggles the presence of a city ID in the set of favorite cities in the DataStore.
      *
@@ -33,11 +37,12 @@ class PreferenceDataSourceImpl @Inject constructor(private val dataStore: DataSt
         dataStore.edit { preferences ->
             val currentFavorites = preferences[FAVORITE_CITIES] ?: emptySet()
 
-            val newFavorites = if (currentFavorites.contains(cityId)) {
-                currentFavorites - cityId
-            } else {
-                currentFavorites + cityId
-            }
+            val newFavorites =
+                if (currentFavorites.contains(cityId)) {
+                    currentFavorites - cityId
+                } else {
+                    currentFavorites + cityId
+                }
 
             preferences[FAVORITE_CITIES] = newFavorites
         }
@@ -75,11 +80,25 @@ class PreferenceDataSourceImpl @Inject constructor(private val dataStore: DataSt
         return savedData.contains(cityId)
     }
 
+    override suspend fun markOnboardingCompleted() {
+        dataStore.edit { preferences ->
+            preferences[ONBOARDING_COMPLETED] = true
+        }
+    }
+
+    override suspend fun isOnboardingCompleted(): Boolean = dataStore.data.first()[ONBOARDING_COMPLETED] ?: false
+
+    override suspend fun setAnalyticsConsent(granted: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[ANALYTICS_CONSENT] = granted
+        }
+    }
+
+    override suspend fun getAnalyticsConsent(): Boolean = dataStore.data.first()[ANALYTICS_CONSENT] ?: false
+
     companion object {
-        /**
-         * A [Preferences.Key] for storing a set of favorite city IDs as strings.
-         * This key is used to access and modify the set of favorite cities within the DataStore.
-         */
         val FAVORITE_CITIES = stringSetPreferencesKey("favorite_cities")
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val ANALYTICS_CONSENT = booleanPreferencesKey("analytics_consent")
     }
 }

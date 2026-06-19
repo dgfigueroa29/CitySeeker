@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import javax.inject.Inject
 
-
 /**
  * Use case for searching cities based on a text filter.
  *
@@ -27,10 +26,11 @@ import javax.inject.Inject
  * @property cityRepository The repository responsible for accessing city data.
  */
 @Suppress("TooGenericExceptionCaught")
-class SearchCityUseCase @Inject constructor(
-    private val cityRepository: CityRepository
+class SearchCityUseCase
+@Inject
+constructor(
+    private val cityRepository: CityRepository,
 ) {
-
     /**
      * Invokes the use case to search for cities.
      *
@@ -47,13 +47,14 @@ class SearchCityUseCase @Inject constructor(
     @OptIn(FlowPreview::class)
     operator fun invoke(
         textFilter: String,
-        withOnlyFavorites: Boolean
-    ): Flow<UiStateModel<List<CityModel>>> = flow {
-        emit(UiStateModel.Loading(true))
-        val cities = cityRepository.searchCities(textFilter, withOnlyFavorites)
-        emit(UiStateModel.Success(cities))
-    }.catch {
-        Timber.e("Error in flow searching cities: ${it.stackTraceToString()}")
-        emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))
-    }.flowOn(Dispatchers.IO)
+        withOnlyFavorites: Boolean,
+    ): Flow<UiStateModel<List<CityModel>>> =
+        flow {
+            emit(UiStateModel.Loading(true))
+            val cities = cityRepository.searchCities(textFilter, withOnlyFavorites)
+            emit(UiStateModel.Success(cities))
+        }.catch {
+            Timber.e("Error in flow searching cities: ${it.stackTraceToString()}")
+            emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))
+        }.flowOn(Dispatchers.IO)
 }

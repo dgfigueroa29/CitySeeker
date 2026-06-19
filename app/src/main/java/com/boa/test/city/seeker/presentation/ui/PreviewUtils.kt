@@ -24,22 +24,23 @@ import com.boa.test.city.seeker.domain.model.CityModel
  *
  * @return A `List<CityModel>` containing the predefined city data.
  */
-fun previewCities(): List<CityModel> {
-    return listOf(
+fun previewCities(): List<CityModel> =
+    listOf(
         CityModel(
             id = 1,
             name = "Mendoza",
             country = "AR",
             isFavorite = true,
             latitude = -32.8832389,
-            longitude = -68.9364586
-        ), CityModel(
+            longitude = -68.9364586,
+        ),
+        CityModel(
             id = 2,
             name = "San Juan",
             country = "AR",
             isFavorite = false,
             latitude = 0.0,
-            longitude = 0.0
+            longitude = 0.0,
         ),
         CityModel(
             id = 3,
@@ -47,7 +48,7 @@ fun previewCities(): List<CityModel> {
             country = "US",
             isFavorite = false,
             latitude = 0.0,
-            longitude = 0.0
+            longitude = 0.0,
         ),
         CityModel(
             id = 4,
@@ -55,7 +56,7 @@ fun previewCities(): List<CityModel> {
             country = "US",
             isFavorite = true,
             latitude = 0.0,
-            longitude = 0.0
+            longitude = 0.0,
         ),
         CityModel(
             id = 5,
@@ -63,7 +64,6 @@ fun previewCities(): List<CityModel> {
             country = "US",
             isFavorite = false,
             latitude = 0.0,
-            longitude = 0.0
-        )
+            longitude = 0.0,
+        ),
     )
-}

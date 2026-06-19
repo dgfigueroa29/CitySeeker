@@ -22,10 +22,9 @@ package com.boa.test.city.seeker.domain.util
  * println(str4.removeSpecialCharacters()) // Output: Test
  * ```
  */
-fun String?.removeSpecialCharacters(): String {
-    return if (this.isNullOrBlank()) {
+fun String?.removeSpecialCharacters(): String =
+    if (this.isNullOrBlank()) {
         ""
     } else {
         this.replace(Regex("[^A-Za-z0-9 -]"), "")
     }
-}

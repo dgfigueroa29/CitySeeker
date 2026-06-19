@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
  * This database contains the [CityEntity] table and provides a [CityDao] to access the data.
  * It follows the singleton pattern to ensure only one instance of the database is created.
  */
-@Database(entities = [CityEntity::class], version = 1, exportSchema = false)
+@Database(entities = [CityEntity::class], version = 2, exportSchema = true)
 abstract class CityDatabase : RoomDatabase() {
     abstract fun cityDao(): CityDao
 
@@ -48,32 +48,35 @@ abstract class CityDatabase : RoomDatabase() {
          * @return The singleton instance of [CityDatabase].
          */
         @Suppress("unused")
-        fun getInstance(context: Context): CityDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    CityDatabase::class.java,
-                    DB_NAME
-                )
-                    .addCallback(object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            db.execSQL("CREATE INDEX $INDEX_NAME ON $TABLE_CITIES($COLUMN_NAME)")
-                            db.execSQL(
-                                "CREATE INDEX $INDEX_COUNTRY ON " +
-                                        "$TABLE_CITIES($COLUMN_COUNTRY)"
-                            )
-                        }
-                    })
-                    .setQueryCallback({ sql, params ->
-                        if (BuildConfig.DEBUG) {
-                            Timber.d("RoomQuerySQL: $sql - Params: $params")
-                        }
-                    }, Executors.newSingleThreadExecutor())
-                    .build()
+        fun getInstance(context: Context): CityDatabase =
+            INSTANCE ?: synchronized(this) {
+                val instance =
+                    Room
+                        .databaseBuilder(
+                            context.applicationContext,
+                            CityDatabase::class.java,
+                            DB_NAME,
+                        ).addCallback(
+                            object : Callback() {
+                                override fun onCreate(db: SupportSQLiteDatabase) {
+                                    super.onCreate(db)
+                                    db.execSQL("CREATE INDEX $INDEX_NAME ON $TABLE_CITIES($COLUMN_NAME)")
+                                    db.execSQL(
+                                        "CREATE INDEX $INDEX_COUNTRY ON " +
+                                            "$TABLE_CITIES($COLUMN_COUNTRY)",
+                                    )
+                                }
+                            },
+                        ).setQueryCallback(
+                            { sql, params ->
+                                if (BuildConfig.DEBUG) {
+                                    Timber.d("RoomQuerySQL: $sql - Params: $params")
+                                }
+                            },
+                            Executors.newSingleThreadExecutor(),
+                        ).build()
                 INSTANCE = instance
                 instance
             }
-        }
     }
 }

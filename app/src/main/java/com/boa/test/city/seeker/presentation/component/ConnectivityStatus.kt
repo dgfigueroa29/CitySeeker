@@ -30,12 +30,14 @@ import com.boa.test.city.seeker.presentation.sensor.ConnectivityReceiver
 @Composable
 fun ConnectivityStatus(onConnectionChanged: (Boolean) -> Unit) {
     val context = LocalContext.current
-    val connectivityReceiver = remember {
-        ConnectivityReceiver(onConnectionChanged)
-    }
+    val connectivityReceiver =
+        remember {
+            ConnectivityReceiver(onConnectionChanged)
+        }
 
     DisposableEffect(Unit) {
-        @Suppress("DEPRECATION") val intentFilter =
+        @Suppress("DEPRECATION")
+        val intentFilter =
             IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         context.registerReceiver(connectivityReceiver, intentFilter)
 

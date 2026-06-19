@@ -20,10 +20,11 @@ import com.boa.test.city.seeker.data.local.CityDatabase.Companion.TABLE_CITIES
  * @property longitude The longitude coordinate of the city.
  */
 @Entity(
-    tableName = TABLE_CITIES, indices = [
+    tableName = TABLE_CITIES,
+    indices = [
         Index(value = ["name"], name = INDEX_NAME),
         Index(value = ["country"], name = INDEX_COUNTRY),
-    ]
+    ],
 )
 data class CityEntity(
     @PrimaryKey
@@ -36,5 +37,7 @@ data class CityEntity(
     @ColumnInfo(name = "latitude")
     val latitude: Double,
     @ColumnInfo(name = "longitude")
-    val longitude: Double
+    val longitude: Double,
+    @ColumnInfo(name = "image_url")
+    val imageUrl: String = "",
 )

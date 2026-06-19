@@ -33,6 +33,5 @@ abstract class BaseMapper<I, O> {
      * @return A list of distinct output objects, or an empty list if the input is null or all
      * mappings result in null.
      */
-    fun mapAll(input: Collection<I>?): List<O> =
-        input?.mapNotNull { map(it) }?.distinct() ?: emptyList()
+    fun mapAll(input: Collection<I>?): List<O> = input?.mapNotNull { map(it) }?.distinct() ?: emptyList()
 }

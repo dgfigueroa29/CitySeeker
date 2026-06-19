@@ -5,11 +5,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.Room
-import com.boa.test.city.seeker.BuildConfig
 import com.boa.test.city.seeker.common.CACHE_SIZE
 import com.boa.test.city.seeker.common.FILE_CITY
 import com.boa.test.city.seeker.data.local.CityDatabase
 import com.boa.test.city.seeker.data.local.CityDatabase.Companion.DB_NAME
+import com.boa.test.city.seeker.data.mapper.CityMapper
 import com.boa.test.city.seeker.data.network.CityApi
 import com.boa.test.city.seeker.data.repository.CityRepositoryImpl
 import com.boa.test.city.seeker.data.repository.PreferenceRepositoryImpl
@@ -50,9 +50,13 @@ object ApplicationModule {
      */
     @Provides
     @Singleton
-    fun providesDatabase(@ApplicationContext context: Context): CityDatabase =
-        Room.databaseBuilder(context, CityDatabase::class.java, DB_NAME)
-            .fallbackToDestructiveMigration(false).build()
+    fun providesDatabase(
+        @ApplicationContext context: Context,
+    ): CityDatabase =
+        Room
+            .databaseBuilder(context, CityDatabase::class.java, DB_NAME)
+            .fallbackToDestructiveMigration(com.boa.test.city.seeker.BuildConfig.DEBUG)
+            .build()
 
     /**
      * Provides an [OkHttpClient] instance configured with logging (in debug builds),
@@ -63,22 +67,28 @@ object ApplicationModule {
      */
     @Provides
     @Singleton
-    fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
+    fun provideOkHttpClient(
+        @ApplicationContext context: Context,
+    ): OkHttpClient {
         val builder = OkHttpClient.Builder()
 
-        if (BuildConfig.DEBUG) {
+        if (com.boa.test.city.seeker.BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor()
             logging.level = HttpLoggingInterceptor.Level.BASIC
             builder.addInterceptor(logging)
         }
 
         // Add Gzip compression
-        val gzipInterceptor = Interceptor { chain ->
-            val request = chain.request().newBuilder()
-                .addHeader("Accept-Encoding", "gzip")
-                .build()
-            chain.proceed(request)
-        }
+        val gzipInterceptor =
+            Interceptor { chain ->
+                val request =
+                    chain
+                        .request()
+                        .newBuilder()
+                        .addHeader("Accept-Encoding", "gzip")
+                        .build()
+                chain.proceed(request)
+            }
 
         // Cache de 20MB
         val cacheDir = context.cacheDir
@@ -96,12 +106,10 @@ object ApplicationModule {
      */
     @Provides
     @Singleton
-    fun provideRetrofit(
-        client: OkHttpClient,
-    ): Retrofit =
+    fun provideRetrofit(client: OkHttpClient): Retrofit =
         Retrofit
             .Builder()
-            .baseUrl(BuildConfig.CITIES_URL)
+            .baseUrl(com.boa.test.city.seeker.BuildConfig.CITIES_URL)
             .client(client)
             .build()
 
@@ -140,8 +148,9 @@ object ApplicationModule {
         @ApplicationContext context: Context,
         cityDatabase: CityDatabase,
         cityApi: CityApi,
-        preferenceDataSource: PreferenceDataSource
-    ): CityDataSource = CityDataSourceImpl(context, cityDatabase, cityApi, preferenceDataSource)
+        preferenceDataSource: PreferenceDataSource,
+        cityMapper: CityMapper,
+    ): CityDataSource = CityDataSourceImpl(context, cityDatabase, cityApi, preferenceDataSource, cityMapper)
 
     /**
      * Provides a singleton instance of [CityRepository].
@@ -157,11 +166,15 @@ object ApplicationModule {
      */
     @Provides
     @Singleton
+    fun provideCityMapper(): CityMapper = CityMapper()
+
+    @Provides
+    @Singleton
     fun provideCityRepository(
         dataSource: CityDataSource,
-        preferenceDataSource: PreferenceDataSource
-    ): CityRepository =
-        CityRepositoryImpl(dataSource, preferenceDataSource)
+        preferenceRepository: PreferenceRepository,
+        cityMapper: CityMapper,
+    ): CityRepository = CityRepositoryImpl(dataSource, preferenceRepository, cityMapper)
 
     /**
      * Provides a singleton instance of [PreferenceRepository].
@@ -189,11 +202,13 @@ object ApplicationModule {
      */
     @Provides
     @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+    fun provideDataStore(
+        @ApplicationContext context: Context,
+    ): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             produceFile = {
                 File(context.filesDir, "CitySeeker_pref.preferences_pb")
-            }
+            },
         )
 
     /**
@@ -209,7 +224,6 @@ object ApplicationModule {
      */
     @Singleton
     @Provides
-    fun providePreferenceDataSource(
-        dataStore: DataStore<Preferences>
-    ): PreferenceDataSource = PreferenceDataSourceImpl(dataStore)
+    fun providePreferenceDataSource(dataStore: DataStore<Preferences>): PreferenceDataSource =
+        PreferenceDataSourceImpl(dataStore)
 }
