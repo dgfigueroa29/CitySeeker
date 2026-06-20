@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.boa.test.city.seeker.common.analytics.AnalyticsEvent
 import com.boa.test.city.seeker.common.analytics.AnalyticsService
 import com.boa.test.city.seeker.common.analytics.PerformanceMonitor
+import com.boa.test.city.seeker.domain.usecase.AddJournalEntryUseCase
 import com.boa.test.city.seeker.domain.usecase.GetCityByIdUseCase
 import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
 import com.boa.test.city.seeker.presentation.feature.city.list.FavoriteEvent
@@ -23,6 +24,7 @@ class DetailViewModel
 constructor(
     private val getCityByIdUseCase: GetCityByIdUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val addJournalEntryUseCase: AddJournalEntryUseCase,
     private val analyticsService: AnalyticsService,
     private val performanceMonitor: PerformanceMonitor,
 ) : ViewModel() {
@@ -61,6 +63,20 @@ constructor(
             analyticsService.track(AnalyticsEvent.City.ToggleFavorite(cityId, !wasFavorite))
             val event = if (wasFavorite) FavoriteEvent.Removed else FavoriteEvent.Added
             _favoriteEvents.send(event)
+        }
+    }
+
+    fun addJournalEntry(
+        title: String,
+        notes: String,
+        rating: Int,
+        photoUri: String? = null,
+    ) {
+        viewModelScope.launch {
+            val cityId = detailState.city.value.id
+            if (cityId == 0L) return@launch
+            addJournalEntryUseCase(cityId, title, notes, rating, photoUri)
+            analyticsService.track(AnalyticsEvent.Journal.EntryCreated(cityId.toString()))
         }
     }
 

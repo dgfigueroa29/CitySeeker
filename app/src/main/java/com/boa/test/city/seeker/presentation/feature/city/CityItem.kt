@@ -11,7 +11,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +39,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
+import com.boa.test.city.seeker.presentation.ui.theme.LocalAnimatedVisibilityScope
+import com.boa.test.city.seeker.presentation.ui.theme.LocalSharedTransitionScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -134,10 +136,26 @@ fun CityItem(
                 canGoBack = canGoBack,
                 onClick = onCityClick,
             )
+            val cityImageModifier = run {
+                val scope = LocalSharedTransitionScope.current
+                val animScope = LocalAnimatedVisibilityScope.current
+                if (scope != null && animScope != null) {
+                    with(scope) {
+                        Modifier
+                            .padding(end = 12.dp)
+                            .sharedElement(
+                                sharedContentState = rememberSharedContentState(key = city.id.toString()),
+                                animatedVisibilityScope = animScope,
+                            )
+                    }
+                } else {
+                    Modifier.padding(end = 12.dp)
+                }
+            }
             CityImage(
                 imageUrl = city.imageUrl,
                 cityName = city.name,
-                modifier = Modifier.padding(end = 12.dp),
+                modifier = cityImageModifier,
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -182,7 +200,7 @@ private fun BackIcon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = stringResource(R.string.back),
                 tint =
-                    if (isSystemInDarkTheme()) {
+                    if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
                         PrimaryOffLight
                     } else {
                         PrimaryOffDark

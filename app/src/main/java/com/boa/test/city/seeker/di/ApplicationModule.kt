@@ -9,15 +9,20 @@ import com.boa.test.city.seeker.common.CACHE_SIZE
 import com.boa.test.city.seeker.common.FILE_CITY
 import com.boa.test.city.seeker.data.local.CityDatabase
 import com.boa.test.city.seeker.data.local.CityDatabase.Companion.DB_NAME
+import com.boa.test.city.seeker.data.local.MIGRATION_2_3
 import com.boa.test.city.seeker.data.mapper.CityMapper
 import com.boa.test.city.seeker.data.network.CityApi
 import com.boa.test.city.seeker.data.repository.CityRepositoryImpl
+import com.boa.test.city.seeker.data.repository.JournalRepositoryImpl
 import com.boa.test.city.seeker.data.repository.PreferenceRepositoryImpl
 import com.boa.test.city.seeker.data.source.CityDataSource
 import com.boa.test.city.seeker.data.source.CityDataSourceImpl
+import com.boa.test.city.seeker.data.source.JournalDataSource
+import com.boa.test.city.seeker.data.source.JournalDataSourceImpl
 import com.boa.test.city.seeker.data.source.PreferenceDataSource
 import com.boa.test.city.seeker.data.source.PreferenceDataSourceImpl
 import com.boa.test.city.seeker.domain.repository.CityRepository
+import com.boa.test.city.seeker.domain.repository.JournalRepository
 import com.boa.test.city.seeker.domain.repository.PreferenceRepository
 import dagger.Module
 import dagger.Provides
@@ -55,7 +60,7 @@ object ApplicationModule {
     ): CityDatabase =
         Room
             .databaseBuilder(context, CityDatabase::class.java, DB_NAME)
-            .fallbackToDestructiveMigration(com.boa.test.city.seeker.BuildConfig.DEBUG)
+            .addMigrations(MIGRATION_2_3)
             .build()
 
     /**
@@ -226,4 +231,16 @@ object ApplicationModule {
     @Provides
     fun providePreferenceDataSource(dataStore: DataStore<Preferences>): PreferenceDataSource =
         PreferenceDataSourceImpl(dataStore)
+
+    @Provides
+    @Singleton
+    fun provideJournalDataSource(database: CityDatabase): JournalDataSource =
+        JournalDataSourceImpl(database.journalDao())
+
+    @Provides
+    @Singleton
+    fun provideJournalRepository(
+        journalDataSource: JournalDataSource,
+        cityDataSource: CityDataSource,
+    ): JournalRepository = JournalRepositoryImpl(journalDataSource, cityDataSource)
 }

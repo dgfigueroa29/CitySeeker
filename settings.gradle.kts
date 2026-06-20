@@ -29,3 +29,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "CitySeeker"
 include(":app")
+include(":benchmark")

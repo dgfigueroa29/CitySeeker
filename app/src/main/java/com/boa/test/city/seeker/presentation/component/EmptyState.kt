@@ -28,6 +28,7 @@ fun EmptyState(
     icon: ImageVector? = null,
     actionText: String? = null,
     onAction: (() -> Unit)? = null,
+    actions: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier =
@@ -65,15 +66,20 @@ fun EmptyState(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        actionText?.let { text ->
+        if (actions != null) {
             Spacer(modifier = Modifier.height(Dimens.SpaceXL))
-            if (onAction != null) {
-                Button(onClick = onAction) {
-                    Text(text = text)
-                }
-            } else {
-                TextButton(onClick = {}) {
-                    Text(text = text)
+            actions()
+        } else {
+            actionText?.let { text ->
+                Spacer(modifier = Modifier.height(Dimens.SpaceXL))
+                if (onAction != null) {
+                    Button(onClick = onAction) {
+                        Text(text = text)
+                    }
+                } else {
+                    TextButton(onClick = {}) {
+                        Text(text = text)
+                    }
                 }
             }
         }

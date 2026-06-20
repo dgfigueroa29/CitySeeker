@@ -36,6 +36,7 @@ class FavoritesWidget : GlanceAppWidget() {
         private val FAVORITE_CITIES = stringSetPreferencesKey("favorite_cities")
     }
 
+    @Suppress("ResourceType")
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,

@@ -46,4 +46,22 @@
   <string name="consent_body">Allow anonymous usage data to help us improve CitySeeker? You can change this anytime in Settings.</string>
   <string name="consent_accept">Accept</string>
   <string name="consent_decline">Decline</string>
+  <string name="share_city_discover">Discover this city in CitySeeker!</string>
+  <string name="recommendations_title">Suggestions for you</string>
+  <string name="error_network_title">Connection lost</string>
+  <string name="error_network_description">Please check your internet connection and try again.</string>
+  <string name="error_not_found_title">City not found</string>
+  <string name="error_not_found_description">The city you\'re looking for could not be found.</string>
+  <string name="region_selector_title">Browse by region</string>
+  <string name="region_all">All cities</string>
+  <string name="voice_search">Voice search</string>
+  <string name="voice_search_hint">Speak a city name</string>
+  <string name="voice_search_permission">Microphone permission is needed for voice search</string>
+  <string name="journal_title">Travel Journal</string>
+  <string name="journal_empty_title">No journal entries yet</string>
+  <string name="journal_empty_desc">Start documenting your city adventures!</string>
+  <string name="ar_explore_title">AR Explore</string>
+  <string name="route_title">Personalized Route</string>
+  <string name="route_regenerate">Regenerate</string>
+  <string name="route_empty">No recommendations yet.\nStart exploring cities!</string>
 </resources>

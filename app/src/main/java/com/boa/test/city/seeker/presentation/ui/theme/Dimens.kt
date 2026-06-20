@@ -8,6 +8,9 @@ import androidx.compose.ui.unit.sp
  *
  * Centralized spacing, sizing, and elevation tokens to ensure consistency
  * across the entire application.
+ *
+ * Animation durations are defined in [MotionDuration] — use those directly.
+ * Map-specific values are defined in [MapDimensions].
  */
 object Dimens {
     // Spacing scale (4dp base unit)
@@ -79,25 +82,19 @@ object Dimens {
     val RadiusXXLarge = 28.dp
     val RadiusFull = 9999.dp
 
-    // Animation durations
-    val DurationInstant = 0
-    val DurationExtraFast = 50
-    val DurationFast = 100
-    val DurationMedium = 200
-    val DurationStandard = 300
-    val DurationSlow = 400
-    val DurationExtraSlow = 500
-    val DurationExtraExtraSlow = 1000
-
     // Typography
     val LineHeightBody = 24.sp
     val LineHeightHeadline = 32.sp
     val LineHeightDisplay = 40.sp
+}
 
-    // Map specific
-    val MapMarkerRadius = 8.0
-    val MapMarkerStrokeWidth = 2.0
-    val MapDefaultZoom = 9.0
-    val MapMinZoom = 3.0
-    val MapMaxZoom = 18.0
+/**
+ * Map-specific configuration values.
+ */
+object MapDimensions {
+    const val MarkerRadius = 8.0
+    const val MarkerStrokeWidth = 2.0
+    const val DefaultZoom = 9.0
+    const val MinZoom = 3.0
+    const val MaxZoom = 18.0
 }

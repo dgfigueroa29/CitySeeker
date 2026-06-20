@@ -1,6 +1,15 @@
 package com.boa.test.city.seeker.presentation.feature.city.list
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -40,6 +49,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -53,6 +63,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -65,6 +76,7 @@ import com.boa.test.city.seeker.presentation.component.CityListSkeleton
 import com.boa.test.city.seeker.presentation.component.DebugDrawer
 import com.boa.test.city.seeker.presentation.component.EmptyState
 import com.boa.test.city.seeker.presentation.component.ErrorState
+import com.boa.test.city.seeker.presentation.component.ErrorType
 import com.boa.test.city.seeker.presentation.component.FilterSwitch
 import com.boa.test.city.seeker.presentation.component.SearchBar
 import com.boa.test.city.seeker.presentation.component.SuccessSnackbar
@@ -189,6 +201,7 @@ fun ListScreen(
                         ErrorState(
                             message = errorState.value,
                             onRetry = { viewModel.load() },
+                            errorType = ErrorType.Network,
                         )
 
                     ListContentState.Empty ->
@@ -275,6 +288,97 @@ fun ListStateful(
     val favoriteCount = cities.count { it.isFavorite }
     val currentThemeMode = LocalThemeMode.current
 
+    val context = LocalContext.current
+    val speechRecognizer = remember {
+        SpeechRecognizer.createSpeechRecognizer(context)
+    }
+    var voiceSearchQuery by remember { mutableStateOf<String?>(null) }
+    val voiceSearchHint = stringResource(R.string.voice_search_hint)
+
+    DisposableEffect(Unit) {
+        onDispose {
+            speechRecognizer.destroy()
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            if (granted) {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+                    )
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, voiceSearchHint)
+                }
+                speechRecognizer.setRecognitionListener(object : RecognitionListener {
+                    override fun onResults(results: Bundle) {
+                        val matches = results.getStringArrayList(
+                            SpeechRecognizer.RESULTS_RECOGNITION
+                        )
+                        if (!matches.isNullOrEmpty()) {
+                            voiceSearchQuery = matches[0]
+                        }
+                    }
+                    override fun onReadyForSpeech(params: Bundle?) {}
+                    override fun onBeginningOfSpeech() {}
+                    override fun onRmsChanged(rmsdB: Float) {}
+                    override fun onBufferReceived(buffer: ByteArray?) {}
+                    override fun onEndOfSpeech() {}
+                    override fun onError(error: Int) {}
+                    override fun onPartialResults(partialResults: Bundle?) {}
+                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                })
+                speechRecognizer.startListening(intent)
+            }
+        },
+    )
+
+    val onVoiceSearch: () -> Unit = {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO,
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(
+                    RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+                )
+                putExtra(RecognizerIntent.EXTRA_PROMPT, voiceSearchHint)
+            }
+            speechRecognizer.setRecognitionListener(object : RecognitionListener {
+                override fun onResults(results: Bundle) {
+                    val matches = results.getStringArrayList(
+                        SpeechRecognizer.RESULTS_RECOGNITION
+                    )
+                    if (!matches.isNullOrEmpty()) {
+                        voiceSearchQuery = matches[0]
+                    }
+                }
+                override fun onReadyForSpeech(params: Bundle?) {}
+                override fun onBeginningOfSpeech() {}
+                override fun onRmsChanged(rmsdB: Float) {}
+                override fun onBufferReceived(buffer: ByteArray?) {}
+                override fun onEndOfSpeech() {}
+                override fun onError(error: Int) {}
+                override fun onPartialResults(partialResults: Bundle?) {}
+                override fun onEvent(eventType: Int, params: Bundle?) {}
+            })
+            speechRecognizer.startListening(intent)
+        } else {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    LaunchedEffect(voiceSearchQuery) {
+        voiceSearchQuery?.let { text ->
+            searchQuery = text
+            voiceSearchQuery = null
+        }
+    }
+
     Column(
         modifier =
             Modifier
@@ -313,6 +417,7 @@ fun ListStateful(
         SearchBar(
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchQuery = it },
+            onVoiceSearch = onVoiceSearch,
             modifier =
                 Modifier
                     .fillMaxWidth()

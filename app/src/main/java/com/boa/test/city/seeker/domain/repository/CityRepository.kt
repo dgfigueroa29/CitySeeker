@@ -43,4 +43,25 @@ interface CityRepository {
      * @return A [Flow] emitting the [CityModel] matching the given ID.
      */
     fun getCityById(id: Long): Flow<CityModel>
+
+    /**
+     * Returns recommended cities based on favorites and search history.
+     *
+     * @param limit Maximum number of recommendations to return.
+     * @return A list of [CityModel] recommendations.
+     */
+    suspend fun getRecommendations(limit: Int = 10): List<CityModel>
+
+    /**
+     * Returns a reactive Flow of distinct country names from the database.
+     */
+    fun getDistinctCountries(): Flow<List<String>>
+
+    /**
+     * Returns cities filtered by country as a reactive Flow.
+     *
+     * @param country The country name to filter by.
+     * @return A [Flow] emitting a list of [CityModel] objects in that country.
+     */
+    fun getCitiesByCountry(country: String): Flow<List<CityModel>>
 }

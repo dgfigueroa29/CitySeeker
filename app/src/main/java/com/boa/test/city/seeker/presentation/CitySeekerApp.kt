@@ -4,6 +4,7 @@ import android.app.Application
 import com.boa.test.city.seeker.BuildConfig
 import com.boa.test.city.seeker.common.analytics.AnalyticsService
 import com.boa.test.city.seeker.common.map.MapCacheManager
+import com.boa.test.city.seeker.common.map.OfflineTileManager
 import com.mapbox.common.MapboxOptions
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.android.core.SentryAndroid
@@ -20,6 +21,7 @@ class CitySeekerApp : Application() {
         MapboxOptions.accessToken = BuildConfig.MAPBOX_TOKEN
 
         MapCacheManager.init(this)
+        OfflineTileManager.init(this)
 
         initSentry()
         initTimber()

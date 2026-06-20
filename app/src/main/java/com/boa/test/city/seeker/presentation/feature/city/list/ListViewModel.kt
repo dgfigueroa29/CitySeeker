@@ -5,14 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.boa.test.city.seeker.common.analytics.AnalyticsEvent
 import com.boa.test.city.seeker.common.analytics.AnalyticsService
 import com.boa.test.city.seeker.common.analytics.PerformanceMonitor
+import com.boa.test.city.seeker.domain.usecase.RecordSearchUseCase
 import com.boa.test.city.seeker.domain.usecase.SearchCityUseCase
 import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,6 +32,7 @@ class ListViewModel
 constructor(
     private val searchCityUseCase: SearchCityUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val recordSearchUseCase: RecordSearchUseCase,
     private val analyticsService: AnalyticsService,
     private val performanceMonitor: PerformanceMonitor,
 ) : ViewModel() {
@@ -39,6 +43,7 @@ constructor(
     val favoriteEvents: Flow<FavoriteEvent> = _favoriteEvents.receiveAsFlow()
 
     private var searchJob: Job? = null
+    private var initialized = false
 
     @Suppress("unused")
     fun updateConnectionStatus(isConnected: Boolean) {
@@ -59,27 +64,39 @@ constructor(
         searchJob?.cancel()
         searchJob =
             viewModelScope.launch {
-                if (debounce) {
-                    delay(300L)
+                val queryFlow = if (debounce) {
+                    kotlinx.coroutines.flow.flowOf(textFilter)
+                        .debounce(300L)
+                        .distinctUntilChanged()
+                } else {
+                    kotlinx.coroutines.flow.flowOf(textFilter)
                 }
-                performanceMonitor.start("search_cities")
-                searchCityUseCase
-                    .invoke(textFilter, listState.favoriteFilterState.value)
-                    .collect { resource ->
-                        if (resource.data != null && resource.message.isBlank()) {
-                            listState.setList(resource.data)
-                            refreshLoading(resource.isLoading)
-                            performanceMonitor.stop("search_cities")
-                            return@collect
-                        }
 
-                        if (resource.message.isNotBlank() && resource.data == null) {
-                            refreshError(resource.message)
-                            refreshLoading(resource.isLoading)
-                            performanceMonitor.stop("search_cities")
-                            return@collect
+                queryFlow.collect { query ->
+                    if (query.isNotEmpty()) {
+                        viewModelScope.launch {
+                            recordSearchUseCase(query)
                         }
                     }
+                    performanceMonitor.start("search_cities")
+                    searchCityUseCase
+                        .invoke(query, listState.favoriteFilterState.value)
+                        .collect { resource ->
+                            if (resource.data != null && resource.message.isBlank()) {
+                                listState.setList(resource.data)
+                                refreshLoading(resource.isLoading)
+                                performanceMonitor.stop("search_cities")
+                                return@collect
+                            }
+
+                            if (resource.message.isNotBlank() && resource.data == null) {
+                                refreshError(resource.message)
+                                refreshLoading(resource.isLoading)
+                                performanceMonitor.stop("search_cities")
+                                return@collect
+                            }
+                        }
+                }
             }
     }
 

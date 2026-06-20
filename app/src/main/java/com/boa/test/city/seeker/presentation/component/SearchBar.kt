@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,6 +69,7 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     searchQuery: String = "",
     onSearchQueryChanged: (String) -> Unit,
+    onVoiceSearch: (() -> Unit)? = null,
 ) {
     var focused by remember { mutableStateOf(false) }
     val keyboardOptions =
@@ -120,7 +122,7 @@ fun SearchBar(
                     .fillMaxWidth()
                     .onFocusChanged { focused = it.isFocused },
             decorationBox = { innerTextField ->
-                SearchBarContent(searchQuery, innerTextField, onSearchQueryChanged)
+                SearchBarContent(searchQuery, innerTextField, onSearchQueryChanged, onVoiceSearch)
             },
         )
     }
@@ -131,6 +133,7 @@ private fun SearchBarContent(
     searchQuery: String,
     innerTextField: @Composable (() -> Unit),
     onSearchQueryChanged: (String) -> Unit,
+    onVoiceSearch: (() -> Unit)? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -168,6 +171,18 @@ private fun SearchBarContent(
                     imageVector = Icons.Default.Clear,
                     contentDescription = stringResource(R.string.clear_search),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        if (searchQuery.isEmpty() && onVoiceSearch != null) {
+            IconButton(
+                onClick = onVoiceSearch,
+                modifier = Modifier.size(24.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = stringResource(R.string.voice_search),
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
         }

@@ -46,4 +46,22 @@
   <string name="consent_body">¿Permites datos anónimos de uso para mejorar CitySeeker? Puedes cambiarlo en Ajustes.</string>
   <string name="consent_accept">Aceptar</string>
   <string name="consent_decline">Rechazar</string>
+  <string name="share_city_discover">¡Descubre esta ciudad en CitySeeker!</string>
+  <string name="recommendations_title">Sugerencias para ti</string>
+  <string name="error_network_title">Conexión perdida</string>
+  <string name="error_network_description">Verifica tu conexión a internet e inténtalo de nuevo.</string>
+  <string name="error_not_found_title">Ciudad no encontrada</string>
+  <string name="error_not_found_description">La ciudad que buscas no se pudo encontrar.</string>
+  <string name="region_selector_title">Explorar por región</string>
+  <string name="region_all">Todas las ciudades</string>
+  <string name="voice_search">Búsqueda por voz</string>
+  <string name="voice_search_hint">Di el nombre de una ciudad</string>
+  <string name="voice_search_permission">Se necesita permiso del micrófono para la búsqueda por voz</string>
+  <string name="journal_title">Diario de Viaje</string>
+  <string name="journal_empty_title">Aún sin entradas</string>
+  <string name="journal_empty_desc">¡Empieza a documentar tus aventuras!</string>
+  <string name="ar_explore_title">Explorar AR</string>
+  <string name="route_title">Ruta Personalizada</string>
+  <string name="route_regenerate">Regenerar</string>
+  <string name="route_empty">Aún no hay recomendaciones.\n¡Empieza a explorar ciudades!</string>
 </resources>

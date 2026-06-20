@@ -90,6 +90,15 @@ sealed interface AnalyticsEvent {
         }
     }
 
+    sealed interface Journal : AnalyticsEvent {
+        data class EntryCreated(
+            val cityId: String,
+        ) : Journal {
+            override val name get() = "journal_entry_created"
+            override val properties get() = mapOf("city_id" to cityId)
+        }
+    }
+
     sealed interface Performance : AnalyticsEvent {
         data class Trace(
             val operation: String,

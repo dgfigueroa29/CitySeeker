@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import org.junit.Rule
 import org.junit.Test
 
+@Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 class SuccessSnackbarTest {
     @get:Rule
     val composeTestRule = createComposeRule()

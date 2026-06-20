@@ -4,17 +4,20 @@
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
   <application
     android:name=".presentation.CitySeekerApp"
     android:allowBackup="true"
     android:dataExtractionRules="@xml/data_extraction_rules"
+    android:enableOnBackInvokedCallback="true"
     android:fullBackupContent="@xml/backup_rules"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/Theme.CitySeeker">
+    android:theme="@style/Theme.CitySeeker"
+    android:pageSizeCompat="enabled">
     <activity
       android:name=".presentation.MainActivity"
       android:exported="true"
@@ -35,6 +38,16 @@
           android:scheme="cityseeker" />
       </intent-filter>
     </activity>
+
+    <provider
+      android:name="androidx.core.content.FileProvider"
+      android:authorities="${applicationId}.fileprovider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+    </provider>
 
     <meta-data
       android:name="io.sentry.auto-init"

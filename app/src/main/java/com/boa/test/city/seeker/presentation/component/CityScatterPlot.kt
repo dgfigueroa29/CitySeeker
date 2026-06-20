@@ -5,11 +5,12 @@ import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +44,7 @@ fun CityScatterPlot(
     cities: List<CityModel>,
     onCityClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    isDark: Boolean = isSystemInDarkTheme(),
+    isDark: Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f,
 ) {
     val oceanColor = if (isDark) OceanDark else OceanLight
     val gridColor = if (isDark) GridDark else GridLight

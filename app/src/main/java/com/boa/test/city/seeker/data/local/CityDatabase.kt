@@ -1,13 +1,16 @@
 package com.boa.test.city.seeker.data.local
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.boa.test.city.seeker.BuildConfig
 import com.boa.test.city.seeker.data.local.dao.CityDao
+import com.boa.test.city.seeker.data.local.dao.JournalDao
 import com.boa.test.city.seeker.data.local.entity.CityEntity
+import com.boa.test.city.seeker.data.local.entity.JournalEntity
 import timber.log.Timber
 import java.util.concurrent.Executors
 
@@ -17,9 +20,17 @@ import java.util.concurrent.Executors
  * This database contains the [CityEntity] table and provides a [CityDao] to access the data.
  * It follows the singleton pattern to ensure only one instance of the database is created.
  */
-@Database(entities = [CityEntity::class], version = 2, exportSchema = true)
+@Database(
+    entities = [CityEntity::class, JournalEntity::class],
+    version = 4,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 3, to = 4),
+    ],
+)
 abstract class CityDatabase : RoomDatabase() {
     abstract fun cityDao(): CityDao
+    abstract fun journalDao(): JournalDao
 
     companion object {
         const val DB_NAME = "city_database"
@@ -56,7 +67,8 @@ abstract class CityDatabase : RoomDatabase() {
                             context.applicationContext,
                             CityDatabase::class.java,
                             DB_NAME,
-                        ).addCallback(
+                        ).addMigrations(MIGRATION_2_3)
+                        .addCallback(
                             object : Callback() {
                                 override fun onCreate(db: SupportSQLiteDatabase) {
                                     super.onCreate(db)

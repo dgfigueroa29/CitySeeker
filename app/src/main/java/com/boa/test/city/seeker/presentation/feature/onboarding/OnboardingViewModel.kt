@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +32,12 @@ constructor(
     init {
         analyticsService.track(AnalyticsEvent.Onboarding.Started)
         viewModelScope.launch {
-            _isCompleted.value = preferenceDataSource.isOnboardingCompleted()
+            _isCompleted.value = try {
+                preferenceDataSource.isOnboardingCompleted()
+            } catch (e: Exception) {
+                Timber.e("Failed to read onboarding state: ${e.stackTraceToString()}")
+                true
+            }
             _isLoading.value = false
         }
     }

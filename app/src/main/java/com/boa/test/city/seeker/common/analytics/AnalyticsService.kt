@@ -9,4 +9,6 @@ interface AnalyticsService {
         key: String,
         value: String,
     )
+
+    fun setConsentGranted(granted: Boolean) = Unit
 }

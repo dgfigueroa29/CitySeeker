@@ -26,5 +26,5 @@ fun String?.removeSpecialCharacters(): String =
     if (this.isNullOrBlank()) {
         ""
     } else {
-        this.replace(Regex("[^A-Za-z0-9 -]"), "")
+        this.replace(Regex("[^\\p{L}\\p{Nd} .'-]"), "")
     }

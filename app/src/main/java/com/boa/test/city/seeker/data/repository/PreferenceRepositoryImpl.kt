@@ -13,4 +13,20 @@ class PreferenceRepositoryImpl(
     override suspend fun getSetString(): Set<String> = preferenceDataSource.getSetString()
 
     override suspend fun hasString(cityId: String): Boolean = preferenceDataSource.hasString(cityId)
+
+    override suspend fun addSearchQuery(query: String) {
+        preferenceDataSource.addSearchQuery(query)
+    }
+
+    override suspend fun getSearchHistory(): List<String> = preferenceDataSource.getSearchHistory()
+
+    override suspend fun clearSearchHistory() {
+        preferenceDataSource.clearSearchHistory()
+    }
+
+    override suspend fun setThemeMode(modeName: String) {
+        preferenceDataSource.setThemeMode(modeName)
+    }
+
+    override suspend fun getThemeMode(): String = preferenceDataSource.getThemeMode()
 }

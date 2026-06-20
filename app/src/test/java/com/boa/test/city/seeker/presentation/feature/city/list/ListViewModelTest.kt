@@ -5,6 +5,7 @@ import com.boa.test.city.seeker.common.analytics.AnalyticsService
 import com.boa.test.city.seeker.common.analytics.PerformanceMonitor
 import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.domain.model.UiStateModel
+import com.boa.test.city.seeker.domain.usecase.RecordSearchUseCase
 import com.boa.test.city.seeker.domain.usecase.SearchCityUseCase
 import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
 import io.mockk.coEvery
@@ -29,6 +30,7 @@ class ListViewModelTest {
     private lateinit var viewModel: ListViewModel
     private lateinit var searchCityUseCase: SearchCityUseCase
     private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private lateinit var recordSearchUseCase: RecordSearchUseCase
     private val analyticsService: AnalyticsService = mockk(relaxed = true)
     private val performanceMonitor: PerformanceMonitor = mockk(relaxed = true)
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -44,7 +46,8 @@ class ListViewModelTest {
         Dispatchers.setMain(testDispatcher)
         searchCityUseCase = mockk()
         toggleFavoriteUseCase = mockk()
-        viewModel = ListViewModel(searchCityUseCase, toggleFavoriteUseCase, analyticsService, performanceMonitor)
+        recordSearchUseCase = mockk(relaxed = true)
+        viewModel = ListViewModel(searchCityUseCase, toggleFavoriteUseCase, recordSearchUseCase, analyticsService, performanceMonitor)
     }
 
     @After

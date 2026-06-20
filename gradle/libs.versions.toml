@@ -1,4 +1,3 @@
-#noinspection Aligned16KB
 [versions]
 agp = "9.2.1"
 kotlin = "2.4.0"

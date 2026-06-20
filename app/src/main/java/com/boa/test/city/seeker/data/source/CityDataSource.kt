@@ -1,7 +1,9 @@
 package com.boa.test.city.seeker.data.source
 
 import com.boa.test.city.seeker.data.local.entity.CityEntity
+import com.boa.test.city.seeker.data.mapper.CityMapper
 import com.boa.test.city.seeker.domain.model.CityModel
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Defines the interface for accessing city data from various sources.
@@ -29,36 +31,36 @@ interface CityDataSource {
      * Returns a [CityPagingSource] for the given query.
      *
      * @param query The query to search for.
-     * @param trie The CityTrie to use for searching.
-     * @return A [CityPagingSource] that can be used to load city data in pages.
+     * @param cityMapper The mapper to convert entities to models.
+     * @param favoriteIds The set of favorite city IDs to mark favorites.
+     * @return A [CityPagingSource] that queries Room with proper pagination.
      */
-    suspend fun pagingSource(
+    fun pagingSource(
         query: String,
-        trie: OptimizedCityTrie,
+        cityMapper: CityMapper,
+        favoriteIds: Set<String>,
     ): CityPagingSource
 
     /**
-     * Retrieves a city from the data source by its unique ID.
+     * Retrieves a city from the data source by its unique ID as a reactive Flow.
      *
      * @param id The ID of the city to retrieve.
-     * @return The [CityEntity] with the specified ID, or `null` if no city is found with that ID.
+     * @return A [Flow] emitting the [CityEntity] with the specified ID, or `null` if not found.
+     * The Flow re-emits whenever the underlying row changes, enabling offline-first reactivity.
      */
-    suspend fun getCityById(id: Long): CityEntity?
+    fun getCityById(id: Long): Flow<CityEntity?>
 
     /**
-     * Maps cities based on a query using a trie data structure.
+     * Maps cities based on a query.
      *
-     * This function is typically used for suggesting cities based on a partial
-     * or full query string by leveraging the efficient searching capabilities
-     * of a trie.
+     * This function retrieves cities from the database and maps them to [CityModel] objects.
      *
      * @param query The search query string used to find matching cities.
-     * @param trie The [CityTrie] data structure used for efficient city lookups.
-     * @return A list of [CityModel] objects that match the query, potentially
-     *         representing suggestions or exact matches.
+     * @return A list of [CityModel] objects that match the query.
      */
-    suspend fun mapCities(
-        query: String,
-        trie: OptimizedCityTrie,
-    ): List<CityModel>
+    suspend fun mapCities(query: String): List<CityModel>
+
+    fun getDistinctCountries(): Flow<List<String>>
+
+    fun getCitiesByCountry(country: String): Flow<List<CityEntity>>
 }

@@ -4,6 +4,7 @@ import com.boa.test.city.seeker.common.analytics.AnalyticsService
 import com.boa.test.city.seeker.common.analytics.PerformanceMonitor
 import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.domain.model.UiStateModel
+import com.boa.test.city.seeker.domain.usecase.AddJournalEntryUseCase
 import com.boa.test.city.seeker.domain.usecase.GetCityByIdUseCase
 import com.boa.test.city.seeker.domain.usecase.ToggleFavoriteUseCase
 import io.mockk.coEvery
@@ -28,6 +29,7 @@ class DetailViewModelTest {
     private lateinit var viewModel: DetailViewModel
     private lateinit var getCityByIdUseCase: GetCityByIdUseCase
     private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private lateinit var addJournalEntryUseCase: AddJournalEntryUseCase
     private val analyticsService: AnalyticsService = mockk(relaxed = true)
     private val performanceMonitor: PerformanceMonitor = mockk(relaxed = true)
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -39,7 +41,8 @@ class DetailViewModelTest {
         Dispatchers.setMain(testDispatcher)
         getCityByIdUseCase = mockk()
         toggleFavoriteUseCase = mockk()
-        viewModel = DetailViewModel(getCityByIdUseCase, toggleFavoriteUseCase, analyticsService, performanceMonitor)
+        addJournalEntryUseCase = mockk()
+        viewModel = DetailViewModel(getCityByIdUseCase, toggleFavoriteUseCase, addJournalEntryUseCase, analyticsService, performanceMonitor)
     }
 
     @After

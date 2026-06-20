@@ -15,4 +15,8 @@ enum class Screen(
     LIST("list"),
     MAP("map"),
     MAIN("main"),
+    REGIONS("regions"),
+    JOURNALS("journals"),
+    AR("ar"),
+    ROUTE("route"),
 }

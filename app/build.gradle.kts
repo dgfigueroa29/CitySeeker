@@ -10,6 +10,12 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+detekt {
+    config.setFrom(file("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    allRules = false
+}
+
 // apply(plugin = "io.github.takahirom.roborazzi")
 // Roborazzi is causing issues with the current AGP version/setup.
 // Skipping plugin application for now but keeping dependencies.
@@ -113,9 +119,12 @@ android {
     }
 }
 
+
+
 dependencies {
     implementation(libs.jakewharton.timber)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.profileinstaller)
 
     // DI - Hilt
     implementation(libs.hilt.android)
