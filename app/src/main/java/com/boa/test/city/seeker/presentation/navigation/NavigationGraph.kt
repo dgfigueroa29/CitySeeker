@@ -1,6 +1,5 @@
 package com.boa.test.city.seeker.presentation.navigation
 
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -17,20 +16,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import com.boa.test.city.seeker.presentation.component.LoadingIndicator
+import com.boa.test.city.seeker.presentation.feature.ar.ArCityScreen
 import com.boa.test.city.seeker.presentation.feature.city.detail.DetailScreen
 import com.boa.test.city.seeker.presentation.feature.city.list.ListScreen
-import com.boa.test.city.seeker.presentation.feature.main.MainScreen
 import com.boa.test.city.seeker.presentation.feature.journal.JournalScreen
+import com.boa.test.city.seeker.presentation.feature.main.MainScreen
 import com.boa.test.city.seeker.presentation.feature.onboarding.OnboardingScreen
 import com.boa.test.city.seeker.presentation.feature.onboarding.OnboardingViewModel
 import com.boa.test.city.seeker.presentation.feature.region.RegionSelectorScreen
+import com.boa.test.city.seeker.presentation.feature.route.RouteScreen
 import com.boa.test.city.seeker.presentation.ui.theme.LocalAnimatedVisibilityScope
 import com.boa.test.city.seeker.presentation.ui.theme.LocalSharedTransitionScope
 import com.boa.test.city.seeker.presentation.ui.theme.MotionDuration
 import com.boa.test.city.seeker.presentation.ui.theme.ThemeMode
-import com.boa.test.city.seeker.presentation.component.LoadingIndicator
-import com.boa.test.city.seeker.presentation.feature.ar.ArCityScreen
-import com.boa.test.city.seeker.presentation.feature.route.RouteScreen
 
 @Suppress("FunctionNaming")
 @Composable

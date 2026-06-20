@@ -15,7 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -28,6 +27,7 @@ import com.boa.test.city.seeker.presentation.navigation.Screen
 import com.boa.test.city.seeker.presentation.ui.theme.CitySeekerTheme
 import com.boa.test.city.seeker.presentation.ui.theme.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -53,7 +53,12 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(Unit) {
                 val saved = preferenceRepository.getThemeMode()
-                themeMode = try { ThemeMode.valueOf(saved) } catch (_: Exception) { ThemeMode.System }
+                themeMode =
+                    try {
+                        ThemeMode.valueOf(saved)
+                    } catch (_: Exception) {
+                        ThemeMode.System
+                    }
             }
 
             CitySeekerTheme(themeMode = themeMode) {

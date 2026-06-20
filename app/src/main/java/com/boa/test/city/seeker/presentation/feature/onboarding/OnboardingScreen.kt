@@ -90,16 +90,18 @@ fun OnboardingScreen(
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) { pageIndex ->
             val page = pages[pageIndex]
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -126,9 +128,10 @@ fun OnboardingScreen(
         }
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
             repeat(pages.size) { index ->
@@ -155,10 +158,11 @@ fun OnboardingScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             TextButton(

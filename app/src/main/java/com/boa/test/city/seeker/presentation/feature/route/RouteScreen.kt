@@ -67,9 +67,10 @@ fun RouteScreen(
 
             state.cities.isEmpty() -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -124,9 +125,10 @@ private fun RouteCityCard(
             CityImage(
                 imageUrl = imageUrl,
                 cityName = cityName,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
             )
             Text(
                 text = cityName,

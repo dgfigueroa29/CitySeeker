@@ -39,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 
@@ -55,30 +54,38 @@ fun JournalEntryDialog(
     var showError by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
 
-    val contentPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri -> photoUri = uri },
-    )
+    val contentPicker =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+            onResult = { uri -> photoUri = uri },
+        )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("New Journal Entry") },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it; showError = false },
+                    onValueChange = {
+                        title = it
+                        showError = false
+                    },
                     label = { Text("Title") },
                     placeholder = { Text("What did you explore?") },
                     singleLine = true,
                     isError = showError,
-                    supportingText = if (showError) {
-                        { Text("Title is required") }
-                    } else null,
+                    supportingText =
+                        if (showError) {
+                            { Text("Title is required") }
+                        } else {
+                            null
+                        },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -148,9 +155,10 @@ private fun PhotoSelector(
                 Image(
                     painter = rememberAsyncImagePainter(model = photoUri),
                     contentDescription = "Selected photo",
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                    modifier =
+                        Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop,
                 )
                 IconButton(onClick = onRemovePhoto, modifier = Modifier.size(32.dp)) {
@@ -163,11 +171,12 @@ private fun PhotoSelector(
             }
         } else {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable(onClick = onPickPhoto)
-                    .padding(12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(onClick = onPickPhoto)
+                        .padding(12.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -209,8 +218,12 @@ private fun RatingSelector(
                     Icon(
                         imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = "Star $i",
-                        tint = if (i <= rating) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        tint =
+                            if (i <= rating) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                            },
                         modifier = Modifier.size(24.dp),
                     )
                 }

@@ -22,7 +22,6 @@ class CityRepositoryImpl(
     private val preferenceRepository: PreferenceRepository,
     private val cityMapper: CityMapper,
 ) : CityRepository {
-
     override suspend fun searchCitiesAndPaginate(query: String): Flow<PagingData<CityModel>> {
         try {
             val favorites = preferenceRepository.getSetString()
@@ -74,16 +73,16 @@ class CityRepositoryImpl(
             emit(CityModel())
         }
 
-    override fun getDistinctCountries(): Flow<List<String>> =
-        cityDataSource.getDistinctCountries()
+    override fun getDistinctCountries(): Flow<List<String>> = cityDataSource.getDistinctCountries()
 
     override fun getCitiesByCountry(country: String): Flow<List<CityModel>> =
         flow {
             cityDataSource.getCitiesByCountry(country).collect { entities ->
                 val favorites = preferenceRepository.getSetString()
-                val models = entities.map { entity ->
-                    cityMapper.map(entity).copy(isFavorite = favorites.contains(entity.id.toString()))
-                }
+                val models =
+                    entities.map { entity ->
+                        cityMapper.map(entity).copy(isFavorite = favorites.contains(entity.id.toString()))
+                    }
                 emit(models)
             }
         }.flowOn(Dispatchers.IO)
@@ -92,20 +91,22 @@ class CityRepositoryImpl(
         try {
             val favorites = preferenceRepository.getSetString()
             val searchHistory = preferenceRepository.getSearchHistory()
-            val allCities = cityMapper.mapAll(cityDataSource.getAllCities()).map {
-                it.copy(isFavorite = favorites.contains(it.id.toString()))
-            }
+            val allCities =
+                cityMapper.mapAll(cityDataSource.getAllCities()).map {
+                    it.copy(isFavorite = favorites.contains(it.id.toString()))
+                }
 
-            val ranked = allCities.map { city ->
-                var score = 0
-                if (city.isFavorite) score += 10
-                if (searchHistory.any { city.name.contains(it, ignoreCase = true) }) score += 5
-                if (searchHistory.any { city.country.contains(it, ignoreCase = true) }) score += 3
-                city to score
-            }
-                .sortedByDescending { it.second }
-                .take(limit)
-                .map { it.first }
+            val ranked =
+                allCities
+                    .map { city ->
+                        var score = 0
+                        if (city.isFavorite) score += 10
+                        if (searchHistory.any { city.name.contains(it, ignoreCase = true) }) score += 5
+                        if (searchHistory.any { city.country.contains(it, ignoreCase = true) }) score += 3
+                        city to score
+                    }.sortedByDescending { it.second }
+                    .take(limit)
+                    .map { it.first }
 
             return ranked
         } catch (e: Exception) {

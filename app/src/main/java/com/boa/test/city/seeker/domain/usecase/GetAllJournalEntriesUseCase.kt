@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetAllJournalEntriesUseCase
-@Inject
-constructor(
-    private val journalRepository: JournalRepository,
-) {
-    operator fun invoke(forceRefresh: Boolean = false): Flow<List<JournalModel>> =
-        if (forceRefresh) {
-            journalRepository.getAllEntries().flowOn(Dispatchers.IO)
-        } else {
-            journalRepository.getAllEntries().flowOn(Dispatchers.IO).distinctUntilChanged()
-        }
-}
+    @Inject
+    constructor(
+        private val journalRepository: JournalRepository,
+    ) {
+        operator fun invoke(forceRefresh: Boolean = false): Flow<List<JournalModel>> =
+            if (forceRefresh) {
+                journalRepository.getAllEntries().flowOn(Dispatchers.IO)
+            } else {
+                journalRepository.getAllEntries().flowOn(Dispatchers.IO).distinctUntilChanged()
+            }
+    }

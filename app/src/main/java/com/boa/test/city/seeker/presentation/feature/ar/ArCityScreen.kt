@@ -81,16 +81,18 @@ fun ArCityScreen(
             )
 
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                    ),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        ),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -130,10 +132,11 @@ fun ArCityScreen(
 @Composable
 private fun ArMapView(point: Point) {
     val context = LocalContext.current
-    val mapView = remember {
-        MapboxOptions.accessToken = com.boa.test.city.seeker.BuildConfig.MAPBOX_TOKEN
-        MapView(context, MapInitOptions(context))
-    }
+    val mapView =
+        remember {
+            MapboxOptions.accessToken = com.boa.test.city.seeker.BuildConfig.MAPBOX_TOKEN
+            MapView(context, MapInitOptions(context))
+        }
 
     LaunchedEffect(Unit) {
         mapView.mapboxMap.loadStyleUri(Style.LIGHT) {
@@ -147,7 +150,8 @@ private fun ArMapView(point: Point) {
             Map3DConfiguration.apply()
 
             mapView.mapboxMap.setCamera(
-                CameraOptions.Builder()
+                CameraOptions
+                    .Builder()
                     .center(point)
                     .zoom(AR_ZOOM)
                     .pitch(60.0)
@@ -157,27 +161,30 @@ private fun ArMapView(point: Point) {
 
             val annotationApi = mapView.annotations
             val circleAnnotationManager = annotationApi.createCircleAnnotationManager(AnnotationConfig())
-            val circleAnnotationOptions = CircleAnnotationOptions()
-                .withPoint(point)
-                .withCircleRadius(10.0)
-                .withCircleColor(STRING_PRIMARY_DARK)
-                .withCircleStrokeWidth(3.0)
-                .withCircleStrokeColor(STRING_WHITE_COLOR)
+            val circleAnnotationOptions =
+                CircleAnnotationOptions()
+                    .withPoint(point)
+                    .withCircleRadius(10.0)
+                    .withCircleColor(STRING_PRIMARY_DARK)
+                    .withCircleStrokeWidth(3.0)
+                    .withCircleStrokeColor(STRING_WHITE_COLOR)
             circleAnnotationManager.create(circleAnnotationOptions)
 
-            val animator = ValueAnimator.ofFloat(0f, 360f).apply {
-                duration = ORBIT_DURATION_MS
-                repeatCount = ValueAnimator.INFINITE
-                repeatMode = ValueAnimator.RESTART
-                interpolator = null
-                addUpdateListener { anim ->
-                    mapView.mapboxMap.setCamera(
-                        CameraOptions.Builder()
-                            .bearing((anim.animatedValue as Float).toDouble())
-                            .build(),
-                    )
+            val animator =
+                ValueAnimator.ofFloat(0f, 360f).apply {
+                    duration = ORBIT_DURATION_MS
+                    repeatCount = ValueAnimator.INFINITE
+                    repeatMode = ValueAnimator.RESTART
+                    interpolator = null
+                    addUpdateListener { anim ->
+                        mapView.mapboxMap.setCamera(
+                            CameraOptions
+                                .Builder()
+                                .bearing((anim.animatedValue as Float).toDouble())
+                                .build(),
+                        )
+                    }
                 }
-            }
             animator.start()
         }
     }

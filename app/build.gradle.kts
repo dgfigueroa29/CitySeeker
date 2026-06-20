@@ -119,8 +119,6 @@ android {
     }
 }
 
-
-
 dependencies {
     implementation(libs.jakewharton.timber)
     implementation(libs.androidx.core.ktx)

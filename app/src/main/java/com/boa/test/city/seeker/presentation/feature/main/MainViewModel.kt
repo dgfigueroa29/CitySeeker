@@ -13,35 +13,35 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel
-@Inject
-constructor(
-    private val preferenceDataSource: PreferenceDataSource,
-    private val analyticsService: AnalyticsService,
-) : ViewModel() {
-    private val _showConsent = MutableStateFlow(false)
-    val showConsent: StateFlow<Boolean> = _showConsent.asStateFlow()
+    @Inject
+    constructor(
+        private val preferenceDataSource: PreferenceDataSource,
+        private val analyticsService: AnalyticsService,
+    ) : ViewModel() {
+        private val _showConsent = MutableStateFlow(false)
+        val showConsent: StateFlow<Boolean> = _showConsent.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            val consented = preferenceDataSource.getAnalyticsConsent()
-            analyticsService.setConsentGranted(consented)
-            _showConsent.value = !consented
+        init {
+            viewModelScope.launch {
+                val consented = preferenceDataSource.getAnalyticsConsent()
+                analyticsService.setConsentGranted(consented)
+                _showConsent.value = !consented
+            }
+        }
+
+        fun acceptConsent() {
+            viewModelScope.launch {
+                preferenceDataSource.setAnalyticsConsent(true)
+                analyticsService.setConsentGranted(true)
+                _showConsent.value = false
+            }
+        }
+
+        fun declineConsent() {
+            viewModelScope.launch {
+                preferenceDataSource.setAnalyticsConsent(false)
+                analyticsService.setConsentGranted(false)
+                _showConsent.value = false
+            }
         }
     }
-
-    fun acceptConsent() {
-        viewModelScope.launch {
-            preferenceDataSource.setAnalyticsConsent(true)
-            analyticsService.setConsentGranted(true)
-            _showConsent.value = false
-        }
-    }
-
-    fun declineConsent() {
-        viewModelScope.launch {
-            preferenceDataSource.setAnalyticsConsent(false)
-            analyticsService.setConsentGranted(false)
-            _showConsent.value = false
-        }
-    }
-}

@@ -14,18 +14,18 @@ import javax.inject.Inject
  *                                including favorite cities.
  */
 class ToggleFavoriteUseCase
-@Inject
-constructor(
-    private val preferenceRepository: PreferenceRepository,
-) {
-    /**
-     * Toggles the favorite status of a city.
-     *
-     * This function updates the favorite status of a city in the repository.
-     *
-     * @param cityId The ID of the city to toggle the favorite status for.
-     */
-    suspend operator fun invoke(cityId: String) {
-        preferenceRepository.toggleString(cityId)
+    @Inject
+    constructor(
+        private val preferenceRepository: PreferenceRepository,
+    ) {
+        /**
+         * Toggles the favorite status of a city.
+         *
+         * This function updates the favorite status of a city in the repository.
+         *
+         * @param cityId The ID of the city to toggle the favorite status for.
+         */
+        suspend operator fun invoke(cityId: String) {
+            preferenceRepository.toggleString(cityId)
+        }
     }
-}

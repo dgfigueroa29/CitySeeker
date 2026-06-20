@@ -27,34 +27,34 @@ import javax.inject.Inject
  */
 @Suppress("TooGenericExceptionCaught")
 class SearchCityUseCase
-@Inject
-constructor(
-    private val cityRepository: CityRepository,
-) {
-    /**
-     * Invokes the use case to search for cities.
-     *
-     * This function takes a text filter and a boolean flag indicating whether to search
-     * only for favorite cities. It returns a [Flow] of [UiStateModel] that represents
-     * the state of the search operation.
-     *
-     * The search is performed asynchronously on the IO dispatcher.
-     *
-     * @param textFilter The text to filter the cities by.
-     * @param withOnlyFavorites A boolean flag indicating whether to search only for favorite cities.
-     * @return A [Flow] of [UiStateModel] representing the state of the search operation.
-     */
-    @OptIn(FlowPreview::class)
-    operator fun invoke(
-        textFilter: String,
-        withOnlyFavorites: Boolean,
-    ): Flow<UiStateModel<List<CityModel>>> =
-        flow {
-            emit(UiStateModel.Loading(true))
-            val cities = cityRepository.searchCities(textFilter, withOnlyFavorites)
-            emit(UiStateModel.Success(cities))
-        }.catch {
-            Timber.e("Error in flow searching cities: ${it.stackTraceToString()}")
-            emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))
-        }.flowOn(Dispatchers.IO)
-}
+    @Inject
+    constructor(
+        private val cityRepository: CityRepository,
+    ) {
+        /**
+         * Invokes the use case to search for cities.
+         *
+         * This function takes a text filter and a boolean flag indicating whether to search
+         * only for favorite cities. It returns a [Flow] of [UiStateModel] that represents
+         * the state of the search operation.
+         *
+         * The search is performed asynchronously on the IO dispatcher.
+         *
+         * @param textFilter The text to filter the cities by.
+         * @param withOnlyFavorites A boolean flag indicating whether to search only for favorite cities.
+         * @return A [Flow] of [UiStateModel] representing the state of the search operation.
+         */
+        @OptIn(FlowPreview::class)
+        operator fun invoke(
+            textFilter: String,
+            withOnlyFavorites: Boolean,
+        ): Flow<UiStateModel<List<CityModel>>> =
+            flow {
+                emit(UiStateModel.Loading(true))
+                val cities = cityRepository.searchCities(textFilter, withOnlyFavorites)
+                emit(UiStateModel.Success(cities))
+            }.catch {
+                Timber.e("Error in flow searching cities: ${it.stackTraceToString()}")
+                emit(UiStateModel.Error(it.message ?: "An unknown error occurred"))
+            }.flowOn(Dispatchers.IO)
+    }

@@ -29,16 +29,18 @@ class CityPagingSource(
         try {
             val page = params.key ?: INITIAL_PAGE
             val offset = page * params.loadSize
-            val entities = if (query.isBlank()) {
-                cityDao.getAllPaginated(params.loadSize, offset)
-            } else {
-                cityDao.searchCitiesPaginated(query, params.loadSize, offset)
-            }
-            val models = entities.map { entity ->
-                cityMapper.map(entity).copy(
-                    isFavorite = favoriteIds.contains(entity.id.toString()),
-                )
-            }
+            val entities =
+                if (query.isBlank()) {
+                    cityDao.getAllPaginated(params.loadSize, offset)
+                } else {
+                    cityDao.searchCitiesPaginated(query, params.loadSize, offset)
+                }
+            val models =
+                entities.map { entity ->
+                    cityMapper.map(entity).copy(
+                        isFavorite = favoriteIds.contains(entity.id.toString()),
+                    )
+                }
             LoadResult.Page(
                 data = models,
                 prevKey = if (page == INITIAL_PAGE) null else page - 1,

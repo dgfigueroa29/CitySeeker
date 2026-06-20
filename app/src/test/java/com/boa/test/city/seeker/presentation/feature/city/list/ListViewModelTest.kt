@@ -47,7 +47,14 @@ class ListViewModelTest {
         searchCityUseCase = mockk()
         toggleFavoriteUseCase = mockk()
         recordSearchUseCase = mockk(relaxed = true)
-        viewModel = ListViewModel(searchCityUseCase, toggleFavoriteUseCase, recordSearchUseCase, analyticsService, performanceMonitor)
+        viewModel =
+            ListViewModel(
+                searchCityUseCase,
+                toggleFavoriteUseCase,
+                recordSearchUseCase,
+                analyticsService,
+                performanceMonitor,
+            )
     }
 
     @After

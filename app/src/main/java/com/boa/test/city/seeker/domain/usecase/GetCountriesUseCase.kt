@@ -7,10 +7,9 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetCountriesUseCase
-@Inject
-constructor(
-    private val cityRepository: CityRepository,
-) {
-    operator fun invoke(): Flow<List<String>> =
-        cityRepository.getDistinctCountries().flowOn(Dispatchers.IO)
-}
+    @Inject
+    constructor(
+        private val cityRepository: CityRepository,
+    ) {
+        operator fun invoke(): Flow<List<String>> = cityRepository.getDistinctCountries().flowOn(Dispatchers.IO)
+    }

@@ -25,8 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,20 +49,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.imageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.boa.test.city.seeker.R
+import com.boa.test.city.seeker.common.map.Map3DConfiguration
 import com.boa.test.city.seeker.domain.model.CityModel
-import com.boa.test.city.seeker.presentation.navigation.Screen
 import com.boa.test.city.seeker.presentation.component.CityImage
-import com.boa.test.city.seeker.presentation.ui.theme.LocalAnimatedVisibilityScope
-import com.boa.test.city.seeker.presentation.ui.theme.LocalSharedTransitionScope
 import com.boa.test.city.seeker.presentation.component.CityScatterPlot
 import com.boa.test.city.seeker.presentation.component.ErrorState
 import com.boa.test.city.seeker.presentation.component.LoadingIndicator
@@ -71,7 +72,9 @@ import com.boa.test.city.seeker.presentation.component.isLandscape
 import com.boa.test.city.seeker.presentation.feature.city.CityItem
 import com.boa.test.city.seeker.presentation.feature.city.list.FavoriteEvent
 import com.boa.test.city.seeker.presentation.feature.journal.JournalEntryDialog
-import com.boa.test.city.seeker.common.map.Map3DConfiguration
+import com.boa.test.city.seeker.presentation.navigation.Screen
+import com.boa.test.city.seeker.presentation.ui.theme.LocalAnimatedVisibilityScope
+import com.boa.test.city.seeker.presentation.ui.theme.LocalSharedTransitionScope
 import com.boa.test.city.seeker.presentation.ui.theme.STRING_PRIMARY_DARK
 import com.boa.test.city.seeker.presentation.ui.theme.STRING_WHITE_COLOR
 import com.mapbox.common.MapboxOptions
@@ -85,9 +88,6 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
 import com.mapbox.maps.plugin.scalebar.scalebar
-import coil.imageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -186,25 +186,29 @@ fun DetailScreen(
                                 .padding(paddingValues),
                     ) {
                         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                            val detailImageModifier = run {
-                                val scope = LocalSharedTransitionScope.current
-                                val animScope = LocalAnimatedVisibilityScope.current
-                                if (scope != null && animScope != null) {
-                                    with(scope) {
+                            val detailImageModifier =
+                                run {
+                                    val scope = LocalSharedTransitionScope.current
+                                    val animScope = LocalAnimatedVisibilityScope.current
+                                    if (scope != null && animScope != null) {
+                                        with(scope) {
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(200.dp)
+                                                .sharedElement(
+                                                    sharedContentState =
+                                                        rememberSharedContentState(
+                                                            key = city.value.id.toString(),
+                                                        ),
+                                                    animatedVisibilityScope = animScope,
+                                                )
+                                        }
+                                    } else {
                                         Modifier
                                             .fillMaxWidth()
                                             .height(200.dp)
-                                            .sharedElement(
-                                                sharedContentState = rememberSharedContentState(key = city.value.id.toString()),
-                                                animatedVisibilityScope = animScope,
-                                            )
                                     }
-                                } else {
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
                                 }
-                            }
                             CityImage(
                                 imageUrl = city.value.imageUrl,
                                 cityName = city.value.name,
@@ -410,10 +414,12 @@ private suspend fun shareCityImage(
     return withContext(Dispatchers.IO) {
         try {
             val loader = context.imageLoader
-            val request = ImageRequest.Builder(context)
-                .data(imageUrl)
-                .allowHardware(false)
-                .build()
+            val request =
+                ImageRequest
+                    .Builder(context)
+                    .data(imageUrl)
+                    .allowHardware(false)
+                    .build()
             val result = loader.execute(request)
             if (result is SuccessResult) {
                 val bitmap = result.drawable.toBitmap()
@@ -424,7 +430,9 @@ private suspend fun shareCityImage(
                     bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
                 }
                 FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-            } else null
+            } else {
+                null
+            }
         } catch (_: Exception) {
             null
         }

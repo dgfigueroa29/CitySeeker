@@ -14,34 +14,34 @@ import javax.inject.Inject
 
 @HiltViewModel
 class JournalViewModel
-@Inject
-constructor(
-    private val getEntries: GetAllJournalEntriesUseCase,
-    private val deleteEntry: DeleteJournalEntryUseCase,
-) : ViewModel() {
-    private val _state = MutableStateFlow(JournalState())
-    val state: StateFlow<JournalState> = _state.asStateFlow()
+    @Inject
+    constructor(
+        private val getEntries: GetAllJournalEntriesUseCase,
+        private val deleteEntry: DeleteJournalEntryUseCase,
+    ) : ViewModel() {
+        private val _state = MutableStateFlow(JournalState())
+        val state: StateFlow<JournalState> = _state.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            getEntries().collectLatest { entries ->
-                _state.value = _state.value.copy(entries = entries, loadingState = false)
+        init {
+            viewModelScope.launch {
+                getEntries().collectLatest { entries ->
+                    _state.value = _state.value.copy(entries = entries, loadingState = false)
+                }
+            }
+        }
+
+        fun onDeleteEntry(entryId: Long) {
+            viewModelScope.launch {
+                deleteEntry(entryId)
+            }
+        }
+
+        fun onRefresh() {
+            _state.value = _state.value.copy(loadingState = true)
+            viewModelScope.launch {
+                getEntries(forceRefresh = true).collectLatest { entries ->
+                    _state.value = _state.value.copy(entries = entries, loadingState = false)
+                }
             }
         }
     }
-
-    fun onDeleteEntry(entryId: Long) {
-        viewModelScope.launch {
-            deleteEntry(entryId)
-        }
-    }
-
-    fun onRefresh() {
-        _state.value = _state.value.copy(loadingState = true)
-        viewModelScope.launch {
-            getEntries(forceRefresh = true).collectLatest { entries ->
-                _state.value = _state.value.copy(entries = entries, loadingState = false)
-            }
-        }
-    }
-}

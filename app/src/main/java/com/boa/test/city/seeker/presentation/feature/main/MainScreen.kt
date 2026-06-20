@@ -9,15 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -86,17 +86,20 @@ fun PortraitLayout(navController: NavHostController? = null) {
         )
         Card(
             onClick = { navController?.navigate(Screen.REGIONS.endpoint) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.SpaceM),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(Dimens.SpaceM),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Icon(
@@ -114,17 +117,20 @@ fun PortraitLayout(navController: NavHostController? = null) {
         }
         Card(
             onClick = { navController?.navigate(Screen.JOURNALS.endpoint) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                ),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.SpaceM),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(Dimens.SpaceM),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Icon(
@@ -143,17 +149,20 @@ fun PortraitLayout(navController: NavHostController? = null) {
         if (isOnline) {
             Card(
                 onClick = { navController?.navigate(Screen.ROUTE.endpoint) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    ),
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dimens.SpaceM),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.SpaceM),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Icon(
@@ -199,17 +208,20 @@ fun LandscapeLayout(navController: NavHostController? = null) {
             if (isOnline) {
                 Card(
                     onClick = { navController?.navigate(Screen.ROUTE.endpoint) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        ),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Dimens.SpaceM),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(Dimens.SpaceM),
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         Icon(

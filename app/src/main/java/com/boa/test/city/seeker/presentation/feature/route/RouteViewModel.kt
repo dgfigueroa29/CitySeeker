@@ -11,22 +11,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RouteViewModel
-@Inject
-constructor(
-    private val getRecommendationsUseCase: GetRecommendationsUseCase,
-) : ViewModel() {
-    private val _state = MutableStateFlow(RouteState())
-    val state = _state.asStateFlow()
+    @Inject
+    constructor(
+        private val getRecommendationsUseCase: GetRecommendationsUseCase,
+    ) : ViewModel() {
+        private val _state = MutableStateFlow(RouteState())
+        val state = _state.asStateFlow()
 
-    init {
-        regenerate()
-    }
+        init {
+            regenerate()
+        }
 
-    fun regenerate() {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            val cities = getRecommendationsUseCase()
-            _state.value = RouteState(cities = cities, isLoading = false)
+        fun regenerate() {
+            viewModelScope.launch {
+                _state.value = _state.value.copy(isLoading = true)
+                val cities = getRecommendationsUseCase()
+                _state.value = RouteState(cities = cities, isLoading = false)
+            }
         }
     }
-}

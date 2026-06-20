@@ -42,7 +42,14 @@ class DetailViewModelTest {
         getCityByIdUseCase = mockk()
         toggleFavoriteUseCase = mockk()
         addJournalEntryUseCase = mockk()
-        viewModel = DetailViewModel(getCityByIdUseCase, toggleFavoriteUseCase, addJournalEntryUseCase, analyticsService, performanceMonitor)
+        viewModel =
+            DetailViewModel(
+                getCityByIdUseCase,
+                toggleFavoriteUseCase,
+                addJournalEntryUseCase,
+                analyticsService,
+                performanceMonitor,
+            )
     }
 
     @After

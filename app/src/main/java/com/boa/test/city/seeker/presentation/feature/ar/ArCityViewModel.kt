@@ -13,20 +13,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArCityViewModel
-@Inject
-constructor(
-    private val getCityByIdUseCase: GetCityByIdUseCase,
-) : ViewModel() {
-    private val _city = MutableStateFlow<CityModel?>(null)
-    val city = _city.asStateFlow()
+    @Inject
+    constructor(
+        private val getCityByIdUseCase: GetCityByIdUseCase,
+    ) : ViewModel() {
+        private val _city = MutableStateFlow<CityModel?>(null)
+        val city = _city.asStateFlow()
 
-    fun loadCity(cityId: Long) {
-        viewModelScope.launch {
-            getCityByIdUseCase(cityId).collect { state ->
-                if (state is UiStateModel.Success) {
-                    _city.value = state.data
+        fun loadCity(cityId: Long) {
+            viewModelScope.launch {
+                getCityByIdUseCase(cityId).collect { state ->
+                    if (state is UiStateModel.Success) {
+                        _city.value = state.data
+                    }
                 }
             }
         }
     }
-}

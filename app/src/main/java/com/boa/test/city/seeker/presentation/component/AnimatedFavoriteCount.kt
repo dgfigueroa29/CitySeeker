@@ -21,10 +21,11 @@ fun AnimatedFavoriteCount(
 ) {
     val animatedCount by animateIntAsState(
         targetValue = count,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
-        ),
+        animationSpec =
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
         label = "favorite_count",
     )
 

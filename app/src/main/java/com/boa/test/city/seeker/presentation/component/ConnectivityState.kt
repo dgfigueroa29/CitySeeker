@@ -19,16 +19,28 @@ fun rememberOnlineState(): State<Boolean> {
 
     DisposableEffect(Unit) {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) { isOnline.value = true }
-            override fun onLost(network: Network) { isOnline.value = false }
-            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
-                isOnline.value = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val callback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    isOnline.value = true
+                }
+
+                override fun onLost(network: Network) {
+                    isOnline.value = false
+                }
+
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    caps: NetworkCapabilities,
+                ) {
+                    isOnline.value = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                }
             }
-        }
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
+        val request =
+            NetworkRequest
+                .Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
         cm.registerNetworkCallback(request, callback)
         onDispose { cm.unregisterNetworkCallback(callback) }
     }

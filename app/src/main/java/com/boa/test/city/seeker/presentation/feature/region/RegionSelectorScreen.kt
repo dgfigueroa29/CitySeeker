@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -58,7 +57,14 @@ fun RegionSelectorScreen(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = if (selectedCountry != null) selectedCountry!! else stringResource(R.string.region_selector_title),
+                        text =
+                            if (selectedCountry !=
+                                null
+                            ) {
+                                selectedCountry!!
+                            } else {
+                                stringResource(R.string.region_selector_title)
+                            },
                     )
                 },
                 navigationIcon = {
@@ -80,9 +86,10 @@ fun RegionSelectorScreen(
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
         ) {
             if (isLoading) {
                 LoadingIndicator(isLoading = true)
@@ -116,18 +123,21 @@ private fun CountryList(
     ) {
         items(countries, key = { it }) { country ->
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS)
-                    .clickable { onCountryClick(country) },
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS)
+                        .clickable { onCountryClick(country) },
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dimens.SpaceM),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.SpaceM),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
@@ -157,9 +167,10 @@ private fun CityList(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dimens.SpaceXXXL),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Dimens.SpaceXXXL),
         )
     } else {
         LazyColumn(
@@ -170,9 +181,10 @@ private fun CityList(
                     city = city,
                     onCityClick = { onCityClick(city.id.toString()) },
                     onFavoriteClick = {},
-                    modifier = Modifier
-                        .animateItem()
-                        .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
+                    modifier =
+                        Modifier
+                            .animateItem()
+                            .padding(horizontal = Dimens.SpaceM, vertical = Dimens.SpaceXS),
                 )
             }
         }

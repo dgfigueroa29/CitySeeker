@@ -79,7 +79,9 @@ interface CityDao {
      * @param offset The number of cities to skip before starting to return results.
      * @return A list of [CityEntity] objects for the requested page.
      */
-    @Query("SELECT * FROM cities WHERE name LIKE :query || '%' COLLATE NOCASE ORDER BY name, country LIMIT :limit OFFSET :offset")
+    @Query(
+        "SELECT * FROM cities WHERE name LIKE :query || '%' COLLATE NOCASE ORDER BY name, country LIMIT :limit OFFSET :offset",
+    )
     suspend fun searchCitiesPaginated(
         query: String,
         limit: Int,

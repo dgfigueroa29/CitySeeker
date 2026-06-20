@@ -30,6 +30,7 @@ import java.util.concurrent.Executors
 )
 abstract class CityDatabase : RoomDatabase() {
     abstract fun cityDao(): CityDao
+
     abstract fun journalDao(): JournalDao
 
     companion object {

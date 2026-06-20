@@ -9,7 +9,6 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -70,6 +69,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.presentation.component.CityListSkeleton
@@ -289,9 +289,10 @@ fun ListStateful(
     val currentThemeMode = LocalThemeMode.current
 
     val context = LocalContext.current
-    val speechRecognizer = remember {
-        SpeechRecognizer.createSpeechRecognizer(context)
-    }
+    val speechRecognizer =
+        remember {
+            SpeechRecognizer.createSpeechRecognizer(context)
+        }
     var voiceSearchQuery by remember { mutableStateOf<String?>(null) }
     val voiceSearchHint = stringResource(R.string.voice_search_hint)
 
@@ -301,39 +302,55 @@ fun ListStateful(
         }
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { granted ->
-            if (granted) {
-                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                    putExtra(
-                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
-                    )
-                    putExtra(RecognizerIntent.EXTRA_PROMPT, voiceSearchHint)
-                }
-                speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                    override fun onResults(results: Bundle) {
-                        val matches = results.getStringArrayList(
-                            SpeechRecognizer.RESULTS_RECOGNITION
-                        )
-                        if (!matches.isNullOrEmpty()) {
-                            voiceSearchQuery = matches[0]
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { granted ->
+                if (granted) {
+                    val intent =
+                        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                            putExtra(
+                                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+                            )
+                            putExtra(RecognizerIntent.EXTRA_PROMPT, voiceSearchHint)
                         }
-                    }
-                    override fun onReadyForSpeech(params: Bundle?) {}
-                    override fun onBeginningOfSpeech() {}
-                    override fun onRmsChanged(rmsdB: Float) {}
-                    override fun onBufferReceived(buffer: ByteArray?) {}
-                    override fun onEndOfSpeech() {}
-                    override fun onError(error: Int) {}
-                    override fun onPartialResults(partialResults: Bundle?) {}
-                    override fun onEvent(eventType: Int, params: Bundle?) {}
-                })
-                speechRecognizer.startListening(intent)
-            }
-        },
-    )
+                    speechRecognizer.setRecognitionListener(
+                        object : RecognitionListener {
+                            override fun onResults(results: Bundle) {
+                                val matches =
+                                    results.getStringArrayList(
+                                        SpeechRecognizer.RESULTS_RECOGNITION,
+                                    )
+                                if (!matches.isNullOrEmpty()) {
+                                    voiceSearchQuery = matches[0]
+                                }
+                            }
+
+                            override fun onReadyForSpeech(params: Bundle?) {}
+
+                            override fun onBeginningOfSpeech() {}
+
+                            override fun onRmsChanged(rmsdB: Float) {}
+
+                            override fun onBufferReceived(buffer: ByteArray?) {}
+
+                            override fun onEndOfSpeech() {}
+
+                            override fun onError(error: Int) {}
+
+                            override fun onPartialResults(partialResults: Bundle?) {}
+
+                            override fun onEvent(
+                                eventType: Int,
+                                params: Bundle?,
+                            ) {}
+                        },
+                    )
+                    speechRecognizer.startListening(intent)
+                }
+            },
+        )
 
     val onVoiceSearch: () -> Unit = {
         if (ContextCompat.checkSelfPermission(
@@ -341,31 +358,46 @@ fun ListStateful(
                 Manifest.permission.RECORD_AUDIO,
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
-                )
-                putExtra(RecognizerIntent.EXTRA_PROMPT, voiceSearchHint)
-            }
-            speechRecognizer.setRecognitionListener(object : RecognitionListener {
-                override fun onResults(results: Bundle) {
-                    val matches = results.getStringArrayList(
-                        SpeechRecognizer.RESULTS_RECOGNITION
+            val intent =
+                Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
                     )
-                    if (!matches.isNullOrEmpty()) {
-                        voiceSearchQuery = matches[0]
-                    }
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, voiceSearchHint)
                 }
-                override fun onReadyForSpeech(params: Bundle?) {}
-                override fun onBeginningOfSpeech() {}
-                override fun onRmsChanged(rmsdB: Float) {}
-                override fun onBufferReceived(buffer: ByteArray?) {}
-                override fun onEndOfSpeech() {}
-                override fun onError(error: Int) {}
-                override fun onPartialResults(partialResults: Bundle?) {}
-                override fun onEvent(eventType: Int, params: Bundle?) {}
-            })
+            speechRecognizer.setRecognitionListener(
+                object : RecognitionListener {
+                    override fun onResults(results: Bundle) {
+                        val matches =
+                            results.getStringArrayList(
+                                SpeechRecognizer.RESULTS_RECOGNITION,
+                            )
+                        if (!matches.isNullOrEmpty()) {
+                            voiceSearchQuery = matches[0]
+                        }
+                    }
+
+                    override fun onReadyForSpeech(params: Bundle?) {}
+
+                    override fun onBeginningOfSpeech() {}
+
+                    override fun onRmsChanged(rmsdB: Float) {}
+
+                    override fun onBufferReceived(buffer: ByteArray?) {}
+
+                    override fun onEndOfSpeech() {}
+
+                    override fun onError(error: Int) {}
+
+                    override fun onPartialResults(partialResults: Bundle?) {}
+
+                    override fun onEvent(
+                        eventType: Int,
+                        params: Bundle?,
+                    ) {}
+                },
+            )
             speechRecognizer.startListening(intent)
         } else {
             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)

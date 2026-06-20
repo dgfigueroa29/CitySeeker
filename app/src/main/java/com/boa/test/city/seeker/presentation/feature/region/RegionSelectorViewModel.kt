@@ -15,57 +15,55 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegionSelectorViewModel
-@Inject
-constructor(
-    private val getCountriesUseCase: GetCountriesUseCase,
-    private val getCitiesByCountryUseCase: GetCitiesByCountryUseCase,
-) : ViewModel() {
-    val regionState = RegionSelectorState()
+    @Inject
+    constructor(
+        private val getCountriesUseCase: GetCountriesUseCase,
+        private val getCitiesByCountryUseCase: GetCitiesByCountryUseCase,
+    ) : ViewModel() {
+        val regionState = RegionSelectorState()
 
-    private val _selectedCountry = MutableStateFlow<String?>(null)
-    val selectedCountry: StateFlow<String?> = _selectedCountry.asStateFlow()
+        private val _selectedCountry = MutableStateFlow<String?>(null)
+        val selectedCountry: StateFlow<String?> = _selectedCountry.asStateFlow()
 
-    init {
-        loadCountries()
-    }
+        init {
+            loadCountries()
+        }
 
-    private fun loadCountries() {
-        regionState.setLoading(true)
-        viewModelScope.launch {
-            getCountriesUseCase()
-                .catch { e ->
-                    regionState.setError(e.message ?: "Failed to load countries")
-                    regionState.setLoading(false)
-                }
-                .collectLatest { countries ->
-                    regionState.setCountries(countries)
-                    regionState.setLoading(false)
-                }
+        private fun loadCountries() {
+            regionState.setLoading(true)
+            viewModelScope.launch {
+                getCountriesUseCase()
+                    .catch { e ->
+                        regionState.setError(e.message ?: "Failed to load countries")
+                        regionState.setLoading(false)
+                    }.collectLatest { countries ->
+                        regionState.setCountries(countries)
+                        regionState.setLoading(false)
+                    }
+            }
+        }
+
+        fun selectCountry(country: String?) {
+            _selectedCountry.value = country
+            regionState.setSelectedCountry(country)
+            if (country != null) {
+                loadCitiesByCountry(country)
+            } else {
+                regionState.setCities(emptyList())
+            }
+        }
+
+        private fun loadCitiesByCountry(country: String) {
+            regionState.setLoading(true)
+            viewModelScope.launch {
+                getCitiesByCountryUseCase(country)
+                    .catch { e ->
+                        regionState.setError(e.message ?: "Failed to load cities")
+                        regionState.setLoading(false)
+                    }.collectLatest { cities ->
+                        regionState.setCities(cities)
+                        regionState.setLoading(false)
+                    }
+            }
         }
     }
-
-    fun selectCountry(country: String?) {
-        _selectedCountry.value = country
-        regionState.setSelectedCountry(country)
-        if (country != null) {
-            loadCitiesByCountry(country)
-        } else {
-            regionState.setCities(emptyList())
-        }
-    }
-
-    private fun loadCitiesByCountry(country: String) {
-        regionState.setLoading(true)
-        viewModelScope.launch {
-            getCitiesByCountryUseCase(country)
-                .catch { e ->
-                    regionState.setError(e.message ?: "Failed to load cities")
-                    regionState.setLoading(false)
-                }
-                .collectLatest { cities ->
-                    regionState.setCities(cities)
-                    regionState.setLoading(false)
-                }
-        }
-    }
-}

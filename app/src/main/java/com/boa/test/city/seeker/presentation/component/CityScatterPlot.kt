@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -77,8 +77,7 @@ fun CityScatterPlot(
                             scale = (scale * zoom).coerceIn(MIN_SCALE, MAX_SCALE)
                             pan += panDelta
                         }
-                    }
-                    .pointerInput(cities, mapLeft, mapTop, mapW, mapH, scale, pan) {
+                    }.pointerInput(cities, mapLeft, mapTop, mapW, mapH, scale, pan) {
                         detectTapGestures { tapOffset ->
                             cities.forEach { city ->
                                 val px = projectX(mapLeft, mapW, city.longitude, scale, pan.x)

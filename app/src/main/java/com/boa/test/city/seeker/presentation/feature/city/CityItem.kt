@@ -40,8 +40,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
-import com.boa.test.city.seeker.presentation.ui.theme.LocalAnimatedVisibilityScope
-import com.boa.test.city.seeker.presentation.ui.theme.LocalSharedTransitionScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -55,6 +53,8 @@ import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.CityModel
 import com.boa.test.city.seeker.presentation.component.CityImage
 import com.boa.test.city.seeker.presentation.ui.previewCities
+import com.boa.test.city.seeker.presentation.ui.theme.LocalAnimatedVisibilityScope
+import com.boa.test.city.seeker.presentation.ui.theme.LocalSharedTransitionScope
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryDark
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryLight
 import com.boa.test.city.seeker.presentation.ui.theme.PrimaryOffDark
@@ -113,8 +113,7 @@ fun CityItem(
                                 true
                             },
                         )
-                }
-                .clickable(
+                }.clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onCityClick,
@@ -136,22 +135,23 @@ fun CityItem(
                 canGoBack = canGoBack,
                 onClick = onCityClick,
             )
-            val cityImageModifier = run {
-                val scope = LocalSharedTransitionScope.current
-                val animScope = LocalAnimatedVisibilityScope.current
-                if (scope != null && animScope != null) {
-                    with(scope) {
-                        Modifier
-                            .padding(end = 12.dp)
-                            .sharedElement(
-                                sharedContentState = rememberSharedContentState(key = city.id.toString()),
-                                animatedVisibilityScope = animScope,
-                            )
+            val cityImageModifier =
+                run {
+                    val scope = LocalSharedTransitionScope.current
+                    val animScope = LocalAnimatedVisibilityScope.current
+                    if (scope != null && animScope != null) {
+                        with(scope) {
+                            Modifier
+                                .padding(end = 12.dp)
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState(key = city.id.toString()),
+                                    animatedVisibilityScope = animScope,
+                                )
+                        }
+                    } else {
+                        Modifier.padding(end = 12.dp)
                     }
-                } else {
-                    Modifier.padding(end = 12.dp)
                 }
-            }
             CityImage(
                 imageUrl = city.imageUrl,
                 cityName = city.name,

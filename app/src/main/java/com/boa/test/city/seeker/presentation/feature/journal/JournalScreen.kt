@@ -19,8 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Card
@@ -44,8 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.boa.test.city.seeker.R
 import com.boa.test.city.seeker.domain.model.JournalModel
 import com.boa.test.city.seeker.presentation.component.EmptyState
@@ -75,10 +75,11 @@ fun JournalScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
             )
         },
     ) { padding ->
@@ -124,9 +125,10 @@ fun JournalEntryCard(
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -163,10 +165,11 @@ fun JournalEntryCard(
                 Image(
                     painter = rememberAsyncImagePainter(model = Uri.parse(uri)),
                     contentDescription = entry.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(160.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -205,8 +208,12 @@ fun JournalEntryCard(
                             Icon(
                                 imageVector = if (i < entry.rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                 contentDescription = null,
-                                tint = if (i < entry.rating) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                tint =
+                                    if (i < entry.rating) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                                    },
                                 modifier = Modifier.size(14.dp),
                             )
                         }
