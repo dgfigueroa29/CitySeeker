@@ -12,7 +12,8 @@ object OfflineTileManager {
     fun init(context: Context) {
         if (isInitialized) return
         val path = context.getDir("map_tiles", Context.MODE_PRIVATE).absolutePath
-        TileStore.create(path)
+        TileStore.setRootPath(path)
+        TileStore.create()
         isInitialized = true
         Timber.tag(TAG).d("TileStore initialized: %s", path)
     }
